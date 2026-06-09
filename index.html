@@ -1327,8 +1327,15 @@
           <div class="stat">
             <span>Score</span><strong id="score">0</strong>
           </div>
-          <div class="stat">
-            <span>Level</span><strong id="level">1</strong>
+          <div class="stat" style="position: relative;">
+            <span>Level</span>
+            <select id="levelSelect" style="width: 100%; border: none; background: transparent; font-size: 1.35rem; font-weight: 800; color: inherit; text-align: center; cursor: pointer; appearance: none; -webkit-appearance: none; font-family: inherit;">
+              <option value="1">1 (8 verbs)</option>
+              <option value="2">2 (16 verbs)</option>
+              <option value="3">3 (25 verbs)</option>
+              <option value="4">4 (33 verbs)</option>
+            </select>
+            <div style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 0.8rem;" aria-hidden="true">▼</div>
           </div>
           <div class="stat">
             <span>Progress</span><strong id="progressText">0%</strong>
@@ -1345,7 +1352,6 @@
         </button>
         <button class="tab" data-screen-button="memory">Memory</button>
         <button class="tab" data-screen-button="detective">Detective</button>
-        <button class="tab" data-screen-button="perfectpair">Perfect Pair</button>
         <button class="tab" data-screen-button="missingletters">Missing Letters</button>
         <button class="tab" data-screen-button="use">Use It</button>
       </nav>
@@ -1489,7 +1495,7 @@
         <div class="screen-head">
           <div>
             <h2 id="detectiveScreenTitle">Step 4: Tense Detective</h2>
-            <p>Determine if the word is in its Base, Past, or Participle form.</p>
+            <p>Determine if the word is in its Base or Past form.</p>
           </div>
           <div class="badge-row">
             <span class="badge" id="detectiveCount">0 / 8 solved</span>
@@ -1503,37 +1509,10 @@
             <div class="detective-choices">
               <button class="choice-btn base-btn" data-form="base">Base</button>
               <button class="choice-btn past-btn" data-form="past">Past</button>
-              <button class="choice-btn participle-btn" data-form="participle">Participle</button>
             </div>
           </div>
           <p class="feedback" id="detectiveFeedback" aria-live="polite">
-            Is this verb in its Base, Past, or Participle form?
-          </p>
-        </div>
-        <div class="screen-footer">
-          <button class="primary" id="toPerfectPair" disabled>Play Perfect Pair</button>
-        </div>
-      </section>
-
-      <section id="perfectpair" class="screen" aria-labelledby="perfectPairScreenTitle">
-        <div class="screen-head">
-          <div>
-            <h2 id="perfectPairScreenTitle">Step 5: Perfect Pair</h2>
-            <p>Find the correct matching Past and Participle forms for the given base verb.</p>
-          </div>
-          <div class="badge-row">
-            <span class="badge" id="perfectPairCount">0 / 8 solved</span>
-          </div>
-        </div>
-        <div class="content">
-          <div class="perfect-pair-wrapper">
-            <h3 class="perfect-pair-title">Perfect Pair</h3>
-            <p class="perfect-pair-subtitle">Choose the correct Past and Participle pair for<br><span class="perfect-pair-word" id="perfectPairWord">'bite'</span></p>
-            <div class="perfect-pair-choices" id="perfectPairChoices">
-            </div>
-          </div>
-          <p class="feedback" id="perfectPairFeedback" aria-live="polite">
-            Select the correct pair.
+            Is this verb in its Base or Past form?
           </p>
         </div>
         <div class="screen-footer">
@@ -1544,7 +1523,7 @@
       <section id="missingletters" class="screen" aria-labelledby="missingLettersScreenTitle">
         <div class="screen-head">
           <div>
-            <h2 id="missingLettersScreenTitle">Step 6: Missing Letters</h2>
+            <h2 id="missingLettersScreenTitle">Step 5: Missing Letters</h2>
             <p>Type the complete past tense word for the base verb shown.</p>
           </div>
           <div class="badge-row">
@@ -1571,7 +1550,7 @@
       <section id="use" class="screen" aria-labelledby="useTitle">
         <div class="screen-head">
           <div>
-            <h2 id="useTitle">Step 7: Use It</h2>
+            <h2 id="useTitle">Step 6: Use It</h2>
             <p>Choose the past tense word that completes each sentence.</p>
           </div>
           <div class="badge-row">
@@ -1858,9 +1837,81 @@
           participleExample: "We have swum in the pool.",
           sentence: "The children ___ in the pool.",
         },
+        {
+          base: "play",
+          past: "played",
+          participle: "played",
+          hint: "Play is regular. Add -ed to make played.",
+          pastExample: "I played soccer.",
+          participleExample: "I have played soccer.",
+          sentence: "After school, we ___ games.",
+        },
+        {
+          base: "walk",
+          past: "walked",
+          participle: "walked",
+          hint: "Walk is regular. Add -ed to make walked.",
+          pastExample: "We walked home.",
+          participleExample: "We have walked home.",
+          sentence: "The dog ___ in the park.",
+        },
+        {
+          base: "jump",
+          past: "jumped",
+          participle: "jumped",
+          hint: "Jump is regular. Add -ed to make jumped.",
+          pastExample: "The frog jumped.",
+          participleExample: "The frog has jumped.",
+          sentence: "The cat ___ over the fence.",
+        },
+        {
+          base: "look",
+          past: "looked",
+          participle: "looked",
+          hint: "Look is regular. Add -ed to make looked.",
+          pastExample: "She looked around.",
+          participleExample: "She has looked around.",
+          sentence: "He ___ at the stars.",
+        },
+        {
+          base: "clean",
+          past: "cleaned",
+          participle: "cleaned",
+          hint: "Clean is regular. Add -ed to make cleaned.",
+          pastExample: "I cleaned my room.",
+          participleExample: "I have cleaned my room.",
+          sentence: "They ___ the classroom.",
+        },
+        {
+          base: "wash",
+          past: "washed",
+          participle: "washed",
+          hint: "Wash is regular. Add -ed to make washed.",
+          pastExample: "Dad washed the car.",
+          participleExample: "Dad has washed the car.",
+          sentence: "Mom ___ the dishes.",
+        },
+        {
+          base: "cook",
+          past: "cooked",
+          participle: "cooked",
+          hint: "Cook is regular. Add -ed to make cooked.",
+          pastExample: "He cooked dinner.",
+          participleExample: "He has cooked dinner.",
+          sentence: "Grandma ___ a big meal.",
+        },
+        {
+          base: "paint",
+          past: "painted",
+          participle: "painted",
+          hint: "Paint is regular. Add -ed to make painted.",
+          pastExample: "I painted a picture.",
+          participleExample: "I have painted a picture.",
+          sentence: "The artist ___ a beautiful landscape.",
+        },
       ];
 
-      const levelSizes = [8, 16, 25];
+      const levelSizes = [8, 16, 25, 33];
       const memoryPairsPerRound = 6;
       const verbVisuals = {
         go: ["path", "a path to the park"],
@@ -1888,6 +1939,14 @@
         speak: ["speech", "speaking to a team"],
         buy: ["crayons", "new crayons"],
         swim: ["pool", "swimming in a pool"],
+        play: ["blocks", "playing with blocks"],
+        walk: ["shoe", "walking shoes"],
+        jump: ["shoe", "jumping high"],
+        look: ["light", "looking around"],
+        clean: ["light", "cleaning up"],
+        wash: ["cup", "washing a cup"],
+        cook: ["apple", "cooking food"],
+        paint: ["crayons", "painting a picture"],
       };
 
       const nanobanaLogos = {
@@ -1918,8 +1977,6 @@
         memoryMatched: new Set(),
         detectiveQueue: [],
         detectiveRound: 0,
-        perfectPairQueue: [],
-        perfectPairRound: 0,
         missingLettersQueue: [],
         missingLettersRound: 0,
         questions: [],
@@ -1931,7 +1988,7 @@
 
       const els = {
         score: document.getElementById("score"),
-        level: document.getElementById("level"),
+        levelSelect: document.getElementById("levelSelect"),
         progressText: document.getElementById("progressText"),
         progressFill: document.getElementById("progressFill"),
         learnedCount: document.getElementById("learnedCount"),
@@ -1958,11 +2015,6 @@
         detectiveCount: document.getElementById("detectiveCount"),
         detectiveWord: document.getElementById("detectiveWord"),
         detectiveFeedback: document.getElementById("detectiveFeedback"),
-        toPerfectPair: document.getElementById("toPerfectPair"),
-        perfectPairCount: document.getElementById("perfectPairCount"),
-        perfectPairWord: document.getElementById("perfectPairWord"),
-        perfectPairChoices: document.getElementById("perfectPairChoices"),
-        perfectPairFeedback: document.getElementById("perfectPairFeedback"),
         toMissingLetters: document.getElementById("toMissingLetters"),
         missingLettersCount: document.getElementById("missingLettersCount"),
         missingWordDisplay: document.getElementById("missingWordDisplay"),
@@ -1988,7 +2040,8 @@
         if (state.replayMode && state.replayVerbs.length) {
           return state.replayVerbs;
         }
-        return verbs.slice(0, levelSizes[state.level - 1]);
+        const startIndex = state.level === 1 ? 0 : levelSizes[state.level - 2];
+        return verbs.slice(startIndex, levelSizes[state.level - 1]);
       }
 
       function shuffle(items) {
@@ -2084,7 +2137,9 @@
           Math.round(levelProgress + roundProgress),
         );
         els.score.textContent = state.score;
-        els.level.textContent = state.level;
+        if (els.levelSelect.value !== String(state.level)) {
+          els.levelSelect.value = state.level;
+        }
         els.progressText.textContent = `${progress}%`;
         els.progressFill.style.width = `${progress}%`;
       }
@@ -2367,9 +2422,8 @@
         state.detectiveQueue = shuffle(activeVerbs.map(v => {
           const rand = Math.random();
           let form, word;
-          if (rand < 0.33) { form = "base"; word = v.base; }
-          else if (rand < 0.66) { form = "past"; word = v.past; }
-          else { form = "participle"; word = v.participle; }
+          if (rand < 0.5) { form = "base"; word = v.base; }
+          else { form = "past"; word = v.past; }
           return { verb: v, word, form };
         }));
         state.detectiveRound = 0;
@@ -2423,107 +2477,13 @@
 
       function finishDetectiveRound() {
         els.detectiveCount.textContent = `${state.detectiveQueue.length} / ${state.detectiveQueue.length} solved`;
-        els.toPerfectPair.disabled = false;
-        els.toPerfectPair.textContent = "Play Perfect Pair";
-        els.detectiveFeedback.textContent = "Detective work complete! Now find perfect pairs.";
+        els.toMissingLetters.disabled = false;
+        els.toMissingLetters.textContent = "Play Missing Letters";
+        els.detectiveFeedback.textContent = "Detective work complete! Now test your spelling.";
         els.detectiveFeedback.className = "feedback good";
       }
 
       function continueAfterDetective() {
-        startPerfectPair();
-      }
-
-      function startPerfectPair() {
-        const activeVerbs = getActiveVerbs();
-        state.perfectPairQueue = shuffle([...activeVerbs]);
-        state.perfectPairRound = 0;
-        els.toUse.disabled = true;
-        renderPerfectPair();
-        unlockTab("perfectpair");
-        setScreen("perfectpair");
-      }
-
-      function generateDistractors(verb) {
-        const baseEd = verb.base.endsWith('e') ? verb.base + 'd' : verb.base + 'ed';
-        let d1 = `${baseEd} / ${baseEd}`;
-        let d2 = `${verb.past} / ${verb.past}`;
-        
-        if (verb.past === verb.participle) {
-            d2 = `${verb.base} / ${verb.base}`;
-        }
-        
-        const correct = `${verb.past} / ${verb.participle}`;
-        if (d1 === correct) d1 = `${verb.base}en / ${verb.base}en`;
-        if (d2 === correct) d2 = `${verb.base} / ${verb.base}en`;
-        
-        if (verb.base === "eat") d1 = "eated / eated";
-        if (verb.base === "see") d1 = "sawed / sawed";
-        if (verb.base === "go") d1 = "goed / goed";
-        if (verb.base === "run") d1 = "runned / runned";
-        
-        return shuffle([correct, d1, d2]);
-      }
-
-      function renderPerfectPair() {
-        const item = state.perfectPairQueue[state.perfectPairRound];
-        if (!item) {
-          finishPerfectPairRound();
-          return;
-        }
-        els.perfectPairCount.textContent = `${state.perfectPairRound} / ${state.perfectPairQueue.length} solved`;
-        els.perfectPairFeedback.textContent = "Select the correct pair.";
-        els.perfectPairFeedback.className = "feedback";
-        
-        els.perfectPairWord.textContent = `'${item.base}'`;
-        
-        const choices = generateDistractors(item);
-        const correct = `${item.past} / ${item.participle}`;
-        
-        els.perfectPairChoices.innerHTML = "";
-        choices.forEach(choice => {
-          const btn = document.createElement("button");
-          btn.textContent = choice;
-          btn.addEventListener("click", () => answerPerfectPair(choice, correct, btn, item));
-          els.perfectPairChoices.append(btn);
-        });
-      }
-
-      function answerPerfectPair(choice, correct, btnElement, item) {
-        document.querySelectorAll("#perfectPairChoices button").forEach(btn => btn.classList.add("disabled"));
-        
-        if (choice === correct) {
-          state.score += 15;
-          btnElement.classList.add("correct");
-          els.perfectPairFeedback.textContent = `Correct! ${item.base} becomes ${choice}.`;
-          els.perfectPairFeedback.className = "feedback good";
-        } else {
-          state.missed.add(item.base);
-          btnElement.classList.add("wrong");
-          
-          document.querySelectorAll("#perfectPairChoices button").forEach(b => {
-             if (b.textContent === correct) b.classList.add("correct");
-          });
-          
-          els.perfectPairFeedback.textContent = `Not quite. The correct pair is ${correct}.`;
-          els.perfectPairFeedback.className = "feedback bad";
-        }
-        
-        window.setTimeout(() => {
-          state.perfectPairRound++;
-          renderPerfectPair();
-          updateStats();
-        }, 1500);
-      }
-
-      function finishPerfectPairRound() {
-        els.perfectPairCount.textContent = `${state.perfectPairQueue.length} / ${state.perfectPairQueue.length} solved`;
-        els.toMissingLetters.disabled = false;
-        els.toMissingLetters.textContent = "Play Missing Letters";
-        els.perfectPairFeedback.textContent = "Perfect pair complete! Now test your spelling.";
-        els.perfectPairFeedback.className = "feedback good";
-      }
-
-      function continueAfterPerfectPair() {
         startMissingLetters();
       }
 
@@ -2708,12 +2668,12 @@
 
         els.roundResult.textContent = `${missedVerbs.length} tricky`;
         els.replayMissed.disabled = missedVerbs.length === 0;
-        els.nextLevel.disabled = state.level === 3;
+        els.nextLevel.disabled = state.level === levelSizes.length;
         els.nextLevel.textContent =
-          state.level === 3 ? "All Levels Done" : "Next Level";
+          state.level === levelSizes.length ? "All Levels Done" : "Next Level";
         els.reviewMessage.textContent =
-          state.level === 3
-            ? "You practiced all 25 verbs. Replay tricky verbs or restart the adventure."
+          state.level === levelSizes.length
+            ? `You practiced all ${levelSizes[levelSizes.length - 1]} verbs. Replay tricky verbs or restart the adventure.`
             : `Next level adds more verbs: ${levelSizes[state.level]} total.`;
         setScreen("review");
         updateStats();
@@ -2734,7 +2694,7 @@
       }
 
       function goNextLevel() {
-        if (state.level < 3) {
+        if (state.level < levelSizes.length) {
           state.level += 1;
         }
         state.replayMode = false;
@@ -2784,8 +2744,7 @@
       els.startPractice.addEventListener("click", startMatch);
       els.toMemory.addEventListener("click", startMemory);
       els.toDetective.addEventListener("click", continueAfterMemory);
-      els.toPerfectPair.addEventListener("click", continueAfterDetective);
-      els.toMissingLetters.addEventListener("click", continueAfterPerfectPair);
+      els.toMissingLetters.addEventListener("click", continueAfterDetective);
       els.toUse.addEventListener("click", continueAfterMissingLetters);
       els.nextQuestion.addEventListener("click", nextQuestion);
 
@@ -2801,6 +2760,17 @@
       });
       els.replayMissed.addEventListener("click", replayMissed);
       els.nextLevel.addEventListener("click", goNextLevel);
+      els.levelSelect.addEventListener("change", (e) => {
+        state.level = parseInt(e.target.value, 10);
+        state.replayMode = false;
+        state.replayVerbs = [];
+        state.learned = new Set();
+        state.missed = new Set();
+        state.activeIndex = 0;
+        lockTabs();
+        renderLearn();
+        setScreen("learn");
+      });
       document
         .getElementById("restartGame")
         .addEventListener("click", restartGame);
@@ -2813,7 +2783,6 @@
           else if (target === "match") startMatch();
           else if (target === "memory") startMemory();
           else if (target === "detective") startDetective();
-          else if (target === "perfectpair") startPerfectPair();
           else if (target === "missingletters") startMissingLetters();
           else if (target === "use") startUseIt();
         });
