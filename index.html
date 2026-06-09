@@ -1,0 +1,2825 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Irregular Verb Adventure</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #203047;
+        --muted: #61708a;
+        --paper: #fffdf4;
+        --surface: #ffffff;
+        --sun: #ffd166;
+        --sky: #70c1ff;
+        --mint: #7bdcb5;
+        --coral: #ff7a70;
+        --grape: #7c6ee6;
+        --line: #d8e0eb;
+        --good: #178957;
+        --bad: #c64242;
+        --shadow: 0 18px 40px rgba(32, 48, 71, 0.14);
+        --radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100dvh;
+        background:
+          radial-gradient(
+            circle at 12% 12%,
+            rgba(255, 209, 102, 0.35),
+            transparent 26rem
+          ),
+          radial-gradient(
+            circle at 82% 18%,
+            rgba(112, 193, 255, 0.35),
+            transparent 24rem
+          ),
+          linear-gradient(135deg, #fff8de 0%, #e8f7ff 48%, #f5f2ff 100%);
+      }
+
+      body {
+        min-height: 100dvh;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        color: var(--ink);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      button {
+        min-height: 44px;
+        border: 0;
+        border-radius: var(--radius);
+        color: var(--ink);
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease,
+          background 160ms ease;
+      }
+
+      button:focus-visible,
+      .choice-card:focus-visible {
+        outline: 4px solid rgba(124, 110, 230, 0.45);
+        outline-offset: 3px;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.52;
+        transform: none;
+      }
+
+      button:not(:disabled):hover {
+        transform: translateY(-2px);
+      }
+
+      .app {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 12px 0 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+        align-items: center;
+        margin-bottom: 18px;
+        padding: 18px;
+        border: 2px solid rgba(32, 48, 71, 0.08);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: var(--shadow);
+      }
+
+      .title-row {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .mark {
+        display: grid;
+        width: 58px;
+        height: 58px;
+        place-items: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--sun), #ff9b85);
+        box-shadow: inset 0 -5px 0 rgba(32, 48, 71, 0.12);
+      }
+
+      .mark svg {
+        width: 34px;
+        height: 34px;
+        fill: none;
+        stroke: var(--ink);
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2.8;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(1.65rem, 2.2vw + 1rem, 3rem);
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      .subtitle {
+        max-width: 62ch;
+        margin-top: 6px;
+        color: var(--muted);
+        font-weight: 650;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(84px, 1fr));
+        gap: 10px;
+        min-width: 285px;
+      }
+
+      .stat {
+        padding: 10px;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        text-align: center;
+      }
+
+      .stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .stat strong {
+        display: block;
+        margin-top: 2px;
+        font-size: 1.35rem;
+        line-height: 1;
+      }
+
+      .tabs {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .tab {
+        padding: 12px 10px;
+        border: 2px solid var(--line);
+        background: rgba(255, 255, 255, 0.75);
+      }
+
+      .tab[aria-current="step"] {
+        border-color: var(--grape);
+        background: #efeaff;
+        box-shadow: inset 0 -4px 0 rgba(124, 110, 230, 0.18);
+      }
+
+      .screen {
+        display: none;
+        border: 2px solid rgba(32, 48, 71, 0.08);
+        border-radius: var(--radius);
+        background: rgba(255, 253, 244, 0.9);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        flex: 1;
+        flex-direction: column;
+      }
+
+      .screen.active {
+        display: flex;
+      }
+
+      .screen-head {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px;
+        border-bottom: 2px solid rgba(32, 48, 71, 0.08);
+        background: rgba(255, 255, 255, 0.78);
+      }
+
+      .screen-head p {
+        color: var(--muted);
+        font-weight: 650;
+      }
+
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .badge {
+        display: inline-flex;
+        min-height: 32px;
+        align-items: center;
+        border: 2px solid rgba(32, 48, 71, 0.1);
+        border-radius: 999px;
+        padding: 4px 10px;
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 0.86rem;
+        font-weight: 850;
+      }
+
+      .content {
+        padding: 18px;
+        flex: 1;
+      }
+
+      .learn-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 290px;
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .teacher-card {
+        display: grid;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        background: linear-gradient(145deg, #ffffff, #f8fbff);
+        overflow: hidden;
+      }
+
+      .teacher-top {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-bottom: 2px solid var(--line);
+      }
+
+      .verb-box {
+        min-height: 130px;
+        padding: 18px;
+        text-align: center;
+      }
+
+      .verb-box + .verb-box {
+        border-left: 2px solid var(--line);
+      }
+
+      .verb-box span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .verb-box strong {
+        display: block;
+        margin-top: 12px;
+        font-size: clamp(2rem, 4vw, 4rem);
+        line-height: 1;
+      }
+
+      .verb-box:nth-child(1) {
+        background: rgba(112, 193, 255, 0.16);
+      }
+
+      .verb-box:nth-child(2) {
+        background: rgba(255, 209, 102, 0.22);
+      }
+
+      .verb-box:nth-child(3) {
+        background: rgba(123, 220, 181, 0.18);
+      }
+
+      .teacher-body {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+      }
+
+      .picture-stage {
+        display: grid;
+        grid-template-columns: minmax(150px, 220px) 1fr;
+        gap: 14px;
+        align-items: center;
+        border: 2px solid rgba(32, 48, 71, 0.08);
+        border-radius: var(--radius);
+        padding: 12px;
+        background: #ffffff;
+      }
+
+      .verb-picture,
+      .sentence-picture {
+        display: grid;
+        place-items: center;
+      }
+
+      .verb-picture svg,
+      .sentence-picture svg,
+      .picture-thumb svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .picture-caption {
+        color: var(--muted);
+        font-size: 1.05rem;
+        font-weight: 800;
+      }
+
+      .picture-thumb {
+        width: 64px;
+        min-width: 64px;
+        height: 64px;
+      }
+
+      .hint {
+        border-left: 6px solid var(--grape);
+        padding: 10px 12px;
+        border-radius: 0 var(--radius) var(--radius) 0;
+        background: #f1eeff;
+        font-weight: 800;
+      }
+
+      .example {
+        display: grid;
+        gap: 8px;
+        padding: 14px;
+        border: 2px solid rgba(32, 48, 71, 0.08);
+        border-radius: var(--radius);
+        background: var(--surface);
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .example strong {
+        color: var(--ink);
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .control-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .primary {
+        padding: 11px 16px;
+        background: var(--grape);
+        color: #fff;
+        box-shadow: inset 0 -4px 0 rgba(32, 48, 71, 0.24);
+      }
+
+      .secondary {
+        padding: 11px 16px;
+        border: 2px solid var(--line);
+        background: var(--surface);
+      }
+
+      .quiet {
+        padding: 10px 12px;
+        border: 2px solid transparent;
+        background: transparent;
+        color: var(--muted);
+      }
+
+      .verb-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .mini-card {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+        min-height: 58px;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        padding: 8px 10px;
+        background: var(--surface);
+        text-align: left;
+      }
+
+      .mini-card.active {
+        border-color: var(--grape);
+        background: #f1eeff;
+      }
+
+      .mini-card.learned {
+        border-color: rgba(23, 137, 87, 0.42);
+      }
+
+      .mini-card small {
+        color: var(--muted);
+        font-weight: 750;
+      }
+
+      .dot {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--line);
+        border-radius: 50%;
+        background: #fff;
+      }
+
+      .mini-card.learned .dot {
+        border-color: var(--good);
+        background: var(--mint);
+      }
+
+      .game-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+      }
+
+      .column {
+        display: grid;
+        gap: 10px;
+        align-content: start;
+      }
+
+      .column h3 {
+        font-size: 1rem;
+      }
+
+      .choice-card {
+        width: 100%;
+        min-height: 60px;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        padding: 12px;
+        text-align: center;
+        font-size: 1.25rem;
+        transition: transform 160ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 160ms ease, background 160ms ease;
+        cursor: pointer;
+      }
+
+      .choice-card:not(.matched):active {
+        transform: scale(0.96);
+      }
+
+      .choice-card.visual-choice {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 10px;
+        align-items: center;
+        text-align: left;
+      }
+
+      .choice-card.selected {
+        border-color: var(--grape);
+        background: #f1eeff;
+        box-shadow: inset 0 -4px 0 rgba(124, 110, 230, 0.15);
+      }
+
+      .choice-card.correct {
+        border-color: rgba(23, 137, 87, 0.45);
+        background: #e9fff5;
+        color: #0f6d45;
+      }
+
+      .choice-card.wrong {
+        border-color: rgba(198, 66, 66, 0.45);
+        background: #fff0ef;
+        color: #9e3030;
+      }
+
+      .choice-card.matched {
+        opacity: 0.52;
+        pointer-events: none;
+      }
+
+      .logo-quiz-stage {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+        padding: 24px 0;
+      }
+
+      .logo-picture {
+        width: 220px;
+        height: 220px;
+        background: #ffffff;
+        border-radius: 36px;
+        box-shadow: 0 16px 32px rgba(32, 48, 71, 0.12), inset 0 0 0 4px rgba(32, 48, 71, 0.04);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        padding: 16px;
+      }
+
+      .logo-picture img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 20px;
+      }
+
+      .quiz-hint {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--slate);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-top: -12px;
+        margin-bottom: 4px;
+      }
+
+      .word-blanks {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .blank-box {
+        width: 56px;
+        height: 64px;
+        border: none;
+        border-radius: 12px;
+        background: #f1f5f9;
+        box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.05), inset 0 -2px 0 rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.05);
+        font-size: 2rem;
+        font-weight: 900;
+        display: grid;
+        place-items: center;
+        text-transform: uppercase;
+        color: var(--ink);
+        transition: all 0.2s ease;
+      }
+
+      .blank-box.filled {
+        background: linear-gradient(135deg, #ffffff, #f8fbff);
+        border: 2px solid var(--grape);
+        box-shadow: 0 8px 16px rgba(124, 110, 230, 0.15), inset 0 -4px 0 rgba(124, 110, 230, 0.1);
+        cursor: pointer;
+        transform: translateY(-2px);
+      }
+      
+      .blank-box.correct {
+        background: linear-gradient(135deg, #20bf6b, #178957);
+        border-color: #178957;
+        color: #fff;
+        box-shadow: 0 8px 16px rgba(23, 137, 87, 0.2), inset 0 -4px 0 rgba(0, 0, 0, 0.15);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      }
+      
+      .blank-box.wrong {
+        background: linear-gradient(135deg, #ff7a70, #e22b3c);
+        border-color: #b91a27;
+        color: #fff;
+        animation: shake 0.4s ease-in-out;
+      }
+
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-6px) rotate(-2deg); }
+        75% { transform: translateX(6px) rotate(2deg); }
+      }
+
+      .letter-pool {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        max-width: 420px;
+        justify-content: center;
+        margin-top: 16px;
+      }
+
+      .pool-letter {
+        width: 52px;
+        height: 60px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #70c1ff 0%, #2b9ded 100%);
+        color: #fff;
+        font-size: 1.75rem;
+        font-weight: 900;
+        box-shadow: 0 6px 0 #187ec6, 0 10px 14px rgba(43, 157, 237, 0.3);
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: transform 0.1s, box-shadow 0.1s;
+        text-shadow: 0 2px 2px rgba(0,0,0,0.15);
+      }
+
+      .pool-letter:active {
+        transform: translateY(6px);
+        box-shadow: 0 0 0 #187ec6, 0 2px 4px rgba(43, 157, 237, 0.3);
+      }
+
+      .pool-letter.used {
+        opacity: 0;
+        pointer-events: none;
+        transform: scale(0.8);
+      }
+
+      .detective-wrapper {
+        background: var(--grape);
+        border-radius: var(--radius);
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .detective-title {
+        color: var(--sun);
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+      }
+
+      .detective-subtitle {
+        color: #ffffff;
+        font-size: 1.1rem;
+        margin: 0;
+      }
+
+      .detective-word-box {
+        width: 100%;
+        max-width: 600px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 40px 20px;
+        text-align: center;
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 900;
+        color: #ffffff;
+        letter-spacing: 2px;
+        margin: 10px 0;
+      }
+
+      .detective-choices {
+        display: flex;
+        gap: 16px;
+        width: 100%;
+        max-width: 600px;
+      }
+
+      .detective-choices button {
+        flex: 1;
+        font-size: clamp(0.9rem, 2vw, 1.2rem);
+        font-weight: 800;
+        color: white;
+        padding: 16px 0;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s;
+      }
+
+      .detective-choices button:not(.disabled):active {
+        transform: scale(0.96);
+      }
+
+      .detective-choices button.disabled {
+        pointer-events: none;
+      }
+
+      .choice-btn.correct {
+        box-shadow: 0 0 0 4px var(--mint), inset 0 0 0 2px #fff;
+      }
+
+      .choice-btn.wrong {
+        box-shadow: 0 0 0 4px var(--bad);
+        opacity: 0.6;
+      }
+
+      .base-btn { background: #187ec6; }
+      .past-btn { background: #d97706; }
+      .participle-btn { background: #ec4899; }
+
+      .perfect-pair-wrapper {
+        background: var(--grape);
+        border-radius: var(--radius);
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .perfect-pair-title {
+        color: var(--sun);
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+      }
+
+      .perfect-pair-subtitle {
+        color: #ffffff;
+        font-size: 1.1rem;
+        margin: 0;
+        text-align: center;
+        line-height: 1.4;
+      }
+
+      .perfect-pair-word {
+        display: block;
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #ffffff;
+        margin-top: 8px;
+        letter-spacing: 1px;
+      }
+
+      .perfect-pair-choices {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+        max-width: 500px;
+      }
+
+      .perfect-pair-choices button {
+        width: 100%;
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: white;
+        padding: 18px 0;
+        border-radius: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: rgba(124, 110, 230, 0.5);
+        cursor: pointer;
+        transition: transform 0.1s, opacity 0.2s, background 0.2s;
+      }
+
+      .perfect-pair-choices button:not(.disabled):hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .perfect-pair-choices button:not(.disabled):active {
+        transform: scale(0.98);
+      }
+
+      .perfect-pair-choices button.disabled {
+        pointer-events: none;
+      }
+
+      .perfect-pair-choices button.correct {
+        background: var(--mint);
+        border-color: var(--good);
+        box-shadow: 0 4px 12px rgba(23, 137, 87, 0.3);
+      }
+
+      .perfect-pair-choices button.wrong {
+        background: var(--bad);
+        border-color: #9e3030;
+        opacity: 0.6;
+      }
+
+      .missing-letters-wrapper {
+        background: var(--grape);
+        border-radius: var(--radius);
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .missing-letters-title {
+        color: var(--sun);
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+      }
+
+      .missing-letters-subtitle {
+        color: #ffffff;
+        font-size: 1.1rem;
+        margin: 0;
+        text-align: center;
+      }
+
+      .missing-letters-subtitle strong {
+        text-transform: uppercase;
+      }
+
+      .missing-present-word {
+        display: block;
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #ffffff;
+        margin-top: 8px;
+        letter-spacing: 1px;
+      }
+
+      .missing-word-display {
+        font-size: clamp(3rem, 8vw, 4.5rem);
+        font-weight: 900;
+        color: var(--sun);
+        margin: 10px 0;
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+      }
+
+      .missing-word-display span {
+        display: inline-block;
+        min-width: 1ch;
+        text-align: center;
+      }
+
+      .missing-letters-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 16px;
+        font-size: 1.5rem;
+        font-weight: 800;
+        text-align: center;
+        border: 4px solid var(--sun);
+        border-radius: 16px;
+        color: var(--ink);
+        text-transform: uppercase;
+        outline: none;
+      }
+
+      .missing-letters-input::placeholder {
+        color: #9ca3af;
+        font-weight: 700;
+      }
+
+      .missing-letters-submit {
+        width: 100%;
+        max-width: 400px;
+        padding: 16px;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--ink);
+        background: var(--sun);
+        border: none;
+        border-radius: 40px;
+        cursor: pointer;
+        transition: transform 0.1s;
+      }
+
+      .missing-letters-submit:not(:disabled):active {
+        transform: scale(0.96);
+      }
+
+      .sentence-panel {
+        display: grid;
+        gap: 18px;
+        max-width: 860px;
+        margin: 0 auto;
+      }
+
+      .sentence-picture {
+        max-width: 280px;
+        margin: 0 auto;
+      }
+
+      .sentence {
+        padding: 22px;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        font-size: clamp(1.35rem, 1.8vw + 1rem, 2.25rem);
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .blank {
+        display: inline-block;
+        min-width: 8ch;
+        margin: 0 4px;
+        border-bottom: 5px solid var(--grape);
+        color: var(--grape);
+      }
+
+      .answers {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .feedback {
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+        border: 2px solid transparent;
+        border-radius: var(--radius);
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.65);
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .feedback.good {
+        border-color: rgba(23, 137, 87, 0.35);
+        background: #e9fff5;
+        color: #0f6d45;
+      }
+
+      .feedback.bad {
+        border-color: rgba(198, 66, 66, 0.35);
+        background: #fff0ef;
+        color: #9e3030;
+      }
+
+      .review-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 18px;
+      }
+
+      .missed-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .review-card {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        padding: 12px;
+        background: var(--surface);
+      }
+
+      .review-card strong {
+        font-size: 1.1rem;
+      }
+
+      .review-card span {
+        color: var(--muted);
+        font-weight: 750;
+      }
+
+      .level-card {
+        display: grid;
+        gap: 12px;
+        align-content: start;
+        padding: 14px;
+        border: 2px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+      }
+
+      .progress-track {
+        height: 14px;
+        overflow: hidden;
+        border: 2px solid var(--line);
+        border-radius: 999px;
+        background: #edf3f8;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--mint), var(--sky), var(--sun));
+        transition: width 220ms ease;
+      }
+
+      .screen-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+        padding: 0 18px 18px;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      @media (max-width: 900px) {
+        .hero,
+        .learn-layout,
+        .review-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stats {
+          min-width: 0;
+        }
+
+        .verb-list {
+          display: flex;
+          flex-direction: row;
+          overflow-x: auto;
+          max-height: none;
+          padding-bottom: 8px;
+        }
+
+        .mini-card {
+          flex: 0 0 auto;
+          width: 160px;
+          min-height: auto;
+        }
+      }
+
+      @media (max-width: 680px) {
+        .app {
+          width: min(100% - 20px, 1180px);
+          padding-top: 10px;
+          padding-bottom: 80px;
+        }
+
+        .hero {
+          padding: 8px;
+          margin-bottom: 8px;
+          grid-template-columns: 1fr;
+          gap: 8px;
+          background: rgba(255, 255, 255, 0.6);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.5);
+          box-shadow: 0 8px 32px rgba(32, 48, 71, 0.05);
+          border-radius: 16px;
+        }
+
+        .screen {
+          background: rgba(255, 255, 255, 0.7);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border: 1px solid rgba(255, 255, 255, 0.5);
+          border-radius: 24px;
+          box-shadow: 0 16px 40px rgba(32, 48, 71, 0.08);
+        }
+
+        .screen-head,
+        .content {
+          padding: 12px;
+        }
+
+        .title-row {
+          display: none;
+        }
+
+        .screen-head p {
+          display: none;
+        }
+
+        h1 {
+          font-size: 1.4rem;
+        }
+
+        .mark {
+          width: 40px;
+          height: 40px;
+        }
+
+        .mark svg {
+          width: 24px;
+          height: 24px;
+        }
+
+        .stats {
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
+        }
+
+        .stat {
+          flex: 1;
+          padding: 6px;
+        }
+
+        .stat span {
+          font-size: 0.65rem;
+        }
+
+        .stat strong {
+          font-size: 1.1rem;
+        }
+
+        .answers {
+          grid-template-columns: 1fr;
+        }
+
+        .game-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 8px;
+        }
+
+        .choice-card {
+          min-height: 48px;
+          padding: 8px;
+          font-size: 1rem;
+        }
+
+        .choice-card.visual-choice {
+          grid-template-columns: 1fr;
+          gap: 4px;
+          text-align: center;
+          justify-items: center;
+        }
+
+        .picture-thumb {
+          width: 56px;
+          min-width: 56px;
+          height: 56px;
+        }
+
+        .detective-wrapper,
+        .perfect-pair-wrapper,
+        .missing-letters-wrapper {
+          padding: 16px 12px;
+          gap: 12px;
+        }
+
+        .missing-word-display {
+          font-size: clamp(2rem, 10vw, 3.5rem);
+        }
+
+        .missing-letters-input {
+          padding: 12px;
+          font-size: 1.25rem;
+        }
+
+        .detective-word-box {
+          padding: 20px 12px;
+          font-size: clamp(2rem, 8vw, 3rem);
+        }
+
+        .perfect-pair-word {
+          font-size: 2rem;
+        }
+
+        .tabs {
+          display: flex;
+          overflow-x: auto;
+          white-space: nowrap;
+          -webkit-overflow-scrolling: touch;
+          gap: 10px;
+          margin: 0;
+          padding: 12px 16px;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: rgba(255, 255, 255, 0.75);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border-top: 1px solid rgba(255, 255, 255, 0.4);
+          box-shadow: 0 -8px 32px rgba(32, 48, 71, 0.08);
+          z-index: 100;
+        }
+
+        .tabs::-webkit-scrollbar {
+          display: none;
+        }
+
+        .tab {
+          flex: 0 0 auto;
+          padding: 10px 16px;
+          font-size: 0.95rem;
+          font-weight: 800;
+          border-radius: 999px;
+          background: transparent;
+          border: none;
+          color: var(--muted);
+          transition: all 0.2s ease;
+        }
+
+        .tab[aria-current="step"] {
+          background: var(--grape);
+          color: white;
+          box-shadow: 0 4px 16px rgba(124, 110, 230, 0.4);
+          border: none;
+        }
+
+        .teacher-top {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .verb-box {
+          min-height: auto;
+          padding: 12px 4px;
+        }
+        
+        .verb-box strong {
+          font-size: clamp(1.4rem, 4vw, 1.8rem);
+          margin-top: 4px;
+        }
+
+        .picture-stage {
+          grid-template-columns: 1fr;
+        }
+
+        .verb-box + .verb-box {
+          border-left: 2px solid var(--line);
+          border-top: 0;
+        }
+
+        .memory-board {
+          grid-template-columns: repeat(3, minmax(76px, 1fr));
+        }
+
+        .logo-picture {
+          width: 160px;
+          height: 160px;
+          border-radius: 24px;
+        }
+
+        .blank-box {
+          width: 38px;
+          height: 46px;
+          font-size: 1.5rem;
+          border-radius: 8px;
+        }
+
+        .pool-letter {
+          width: 42px;
+          height: 50px;
+          font-size: 1.3rem;
+          border-radius: 8px;
+        }
+
+        .word-blanks, .letter-pool {
+          gap: 8px;
+        }
+
+        .quiz-hint {
+          font-size: 1.25rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.001ms !important;
+          animation-duration: 0.001ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <div class="title-row">
+          <div class="mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 7.5h9.5a3.5 3.5 0 0 1 0 7H4z"></path>
+              <path d="M4 7.5v9"></path>
+              <path d="M17 10.5l3 3-3 3"></path>
+            </svg>
+          </div>
+          <div>
+            <h1>Irregular Verb Adventure</h1>
+            <p class="subtitle">
+              Learn the verb families first, then use them in fast mini-games
+              until they stick.
+            </p>
+          </div>
+        </div>
+        <div class="stats" aria-label="Game progress">
+          <div class="stat">
+            <span>Score</span><strong id="score">0</strong>
+          </div>
+          <div class="stat">
+            <span>Level</span><strong id="level">1</strong>
+          </div>
+          <div class="stat">
+            <span>Progress</span><strong id="progressText">0%</strong>
+          </div>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="Game steps">
+        <button class="tab" data-screen-button="learn" aria-current="step">
+          Learn
+        </button>
+        <button class="tab" data-screen-button="match">
+          Practice
+        </button>
+        <button class="tab" data-screen-button="memory">Memory</button>
+        <button class="tab" data-screen-button="detective">Detective</button>
+        <button class="tab" data-screen-button="perfectpair">Perfect Pair</button>
+        <button class="tab" data-screen-button="missingletters">Missing Letters</button>
+        <button class="tab" data-screen-button="use">Use It</button>
+      </nav>
+
+      <section id="learn" class="screen active" aria-labelledby="learnTitle">
+        <div class="screen-head">
+          <div>
+            <h2 id="learnTitle">Step 1: Meet the verbs</h2>
+            <p>
+              Read each card. The start button unlocks after the first eight
+              cards are reviewed.
+            </p>
+          </div>
+          <div class="badge-row">
+            <span class="badge" id="learnedCount">0 learned</span>
+            <span class="badge" id="levelScope">8 verbs</span>
+          </div>
+        </div>
+        <div class="content learn-layout">
+          <article class="teacher-card" aria-live="polite">
+            <div class="teacher-top">
+              <div class="verb-box">
+                <span>Base</span><strong id="baseWord">go</strong>
+              </div>
+              <div class="verb-box">
+                <span>Past</span><strong id="pastWord">went</strong>
+              </div>
+              <div class="verb-box">
+                <span>Participle</span><strong id="participleWord">gone</strong>
+              </div>
+            </div>
+            <div class="teacher-body">
+              <div class="picture-stage">
+                <div
+                  class="verb-picture"
+                  id="verbPicture"
+                  aria-hidden="true"
+                ></div>
+                <p class="picture-caption" id="pictureCaption">
+                  A picture helps your brain remember the verb.
+                </p>
+              </div>
+              <p class="hint" id="hintText">
+                Go changes completely: go, went, gone.
+              </p>
+              <div class="example">
+                <p>
+                  <strong>Yesterday:</strong>
+                  <span id="pastExample">Yesterday I went to school.</span>
+                </p>
+                <p>
+                  <strong>Already:</strong>
+                  <span id="participleExample"
+                    >I have gone to school before.</span
+                  >
+                </p>
+              </div>
+              <div class="controls">
+                <div class="control-group">
+                  <button class="secondary" id="prevVerb">Back</button>
+                  <button class="secondary" id="nextVerb">Next</button>
+                </div>
+                <div class="control-group">
+                  <button class="secondary" id="markLearned">
+                    I read this
+                  </button>
+                  <button class="primary" id="startPractice" disabled>
+                    Start Practice
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+          <aside
+            class="verb-list"
+            id="verbList"
+            aria-label="Verb cards"
+          ></aside>
+        </div>
+      </section>
+
+      <section id="match" class="screen" aria-labelledby="matchTitle">
+        <div class="screen-head">
+          <div>
+            <h2 id="matchTitle">Step 2: Match base to past</h2>
+            <p>
+              Match each base verb on the left to its correct past tense form on the right.
+            </p>
+          </div>
+          <div class="badge-row">
+            <span class="badge" id="matchCount">0 matched</span>
+          </div>
+        </div>
+        <div class="content">
+          <div class="game-grid">
+            <div class="column">
+              <h3>Base verbs</h3>
+              <div id="baseColumn"></div>
+            </div>
+            <div class="column">
+              <h3>Past verbs</h3>
+              <div id="pastColumn"></div>
+            </div>
+          </div>
+          <p class="feedback" id="matchFeedback" aria-live="polite">
+            Choose a base verb, then choose its past form.
+          </p>
+        </div>
+        <div class="screen-footer">
+          <button class="primary" id="toMemory" disabled>Play Memory</button>
+        </div>
+      </section>
+
+      <section id="memory" class="screen" aria-labelledby="memoryTitle">
+        <div class="screen-head">
+          <div>
+            <h2 id="memoryTitle">Step 3: Logo Quiz</h2>
+            <p>Look at the picture and spell the past tense of the verb.</p>
+          </div>
+          <div class="badge-row">
+            <span class="badge" id="memoryCount">0 / 8 solved</span>
+          </div>
+        </div>
+        <div class="content">
+          <div class="logo-quiz-stage">
+            <div class="logo-picture" id="logoPicture"></div>
+            <div class="quiz-hint" id="quizHint"></div>
+            <div class="word-blanks" id="wordBlanks"></div>
+            <div class="letter-pool" id="letterPool"></div>
+          </div>
+          <p class="feedback" id="memoryFeedback" aria-live="polite">
+            Tap the letters to spell the past tense word.
+          </p>
+        </div>
+        <div class="screen-footer">
+          <button class="primary" id="toDetective" disabled>Play Detective</button>
+        </div>
+      </section>
+
+      <section id="detective" class="screen" aria-labelledby="detectiveScreenTitle">
+        <div class="screen-head">
+          <div>
+            <h2 id="detectiveScreenTitle">Step 4: Tense Detective</h2>
+            <p>Determine if the word is in its Base, Past, or Participle form.</p>
+          </div>
+          <div class="badge-row">
+            <span class="badge" id="detectiveCount">0 / 8 solved</span>
+          </div>
+        </div>
+        <div class="content">
+          <div class="detective-wrapper">
+            <h3 class="detective-title">Tense Detective</h3>
+            <p class="detective-subtitle">Which grammatical form is this word in?</p>
+            <div class="detective-word-box" id="detectiveWord"></div>
+            <div class="detective-choices">
+              <button class="choice-btn base-btn" data-form="base">Base</button>
+              <button class="choice-btn past-btn" data-form="past">Past</button>
+              <button class="choice-btn participle-btn" data-form="participle">Participle</button>
+            </div>
+          </div>
+          <p class="feedback" id="detectiveFeedback" aria-live="polite">
+            Is this verb in its Base, Past, or Participle form?
+          </p>
+        </div>
+        <div class="screen-footer">
+          <button class="primary" id="toPerfectPair" disabled>Play Perfect Pair</button>
+        </div>
+      </section>
+
+      <section id="perfectpair" class="screen" aria-labelledby="perfectPairScreenTitle">
+        <div class="screen-head">
+          <div>
+            <h2 id="perfectPairScreenTitle">Step 5: Perfect Pair</h2>
+            <p>Find the correct matching Past and Participle forms for the given base verb.</p>
+          </div>
+          <div class="badge-row">
+            <span class="badge" id="perfectPairCount">0 / 8 solved</span>
+          </div>
+        </div>
+        <div class="content">
+          <div class="perfect-pair-wrapper">
+            <h3 class="perfect-pair-title">Perfect Pair</h3>
+            <p class="perfect-pair-subtitle">Choose the correct Past and Participle pair for<br><span class="perfect-pair-word" id="perfectPairWord">'bite'</span></p>
+            <div class="perfect-pair-choices" id="perfectPairChoices">
+            </div>
+          </div>
+          <p class="feedback" id="perfectPairFeedback" aria-live="polite">
+            Select the correct pair.
+          </p>
+        </div>
+        <div class="screen-footer">
+          <button class="primary" id="toMissingLetters" disabled>Play Missing Letters</button>
+        </div>
+      </section>
+
+      <section id="missingletters" class="screen" aria-labelledby="missingLettersScreenTitle">
+        <div class="screen-head">
+          <div>
+            <h2 id="missingLettersScreenTitle">Step 6: Missing Letters</h2>
+            <p>Type the complete past tense word for the base verb shown.</p>
+          </div>
+          <div class="badge-row">
+            <span class="badge" id="missingLettersCount">0 / 8 solved</span>
+          </div>
+        </div>
+        <div class="content">
+          <div class="missing-letters-wrapper">
+            <h3 class="missing-letters-title">Missing Letters</h3>
+            <p class="missing-letters-subtitle">Type the full <strong>PAST TENSE</strong> word for<br><span class="missing-present-word" id="missingPresentWord"></span></p>
+            <div class="missing-word-display" id="missingWordDisplay"></div>
+            <input type="text" class="missing-letters-input" id="missingLettersInput" placeholder="TYPE FULL WORD" autocomplete="off" autocorrect="off" spellcheck="false" />
+            <button class="missing-letters-submit" id="missingLettersSubmit">Submit</button>
+          </div>
+          <p class="feedback" id="missingLettersFeedback" aria-live="polite">
+            Fill in the blanks.
+          </p>
+        </div>
+        <div class="screen-footer">
+          <button class="primary" id="toUse" disabled>Use the Verbs</button>
+        </div>
+      </section>
+
+      <section id="use" class="screen" aria-labelledby="useTitle">
+        <div class="screen-head">
+          <div>
+            <h2 id="useTitle">Step 7: Use It</h2>
+            <p>Choose the past tense word that completes each sentence.</p>
+          </div>
+          <div class="badge-row">
+            <span class="badge" id="questionCount">Question 1</span>
+          </div>
+        </div>
+        <div class="content">
+          <div class="sentence-panel">
+            <div
+              class="sentence-picture"
+              id="sentencePicture"
+              aria-hidden="true"
+            ></div>
+            <p class="sentence" id="sentenceText"></p>
+            <div class="answers" id="answerChoices"></div>
+            <p class="feedback" id="sentenceFeedback" aria-live="polite">
+              Read the sentence, then choose a word.
+            </p>
+          </div>
+        </div>
+        <div class="screen-footer">
+          <button class="primary" id="nextQuestion" disabled>Next</button>
+        </div>
+      </section>
+
+      <section id="review" class="screen" aria-labelledby="reviewTitle">
+        <div class="screen-head">
+          <div>
+            <h2 id="reviewTitle">Review and level up</h2>
+            <p>
+              Look at any tricky verbs, then replay them or move to the next
+              level.
+            </p>
+          </div>
+          <div class="badge-row">
+            <span class="badge" id="roundResult">Round finished</span>
+          </div>
+        </div>
+        <div class="content review-grid">
+          <div>
+            <h3>Tricky verbs</h3>
+            <div class="missed-list" id="missedList"></div>
+          </div>
+          <aside class="level-card">
+            <h3>Adventure trail</h3>
+            <div class="progress-track" aria-label="Overall level progress">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="reviewMessage">Keep practicing and unlock more verbs.</p>
+            <button class="secondary" id="replayMissed">
+              Replay tricky verbs
+            </button>
+            <button class="primary" id="nextLevel">Next Level</button>
+            <button class="quiet" id="restartGame">Restart</button>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const verbs = [
+        {
+          base: "go",
+          past: "went",
+          participle: "gone",
+          hint: "Go changes completely: go, went, gone.",
+          pastExample: "Yesterday I went to the park.",
+          participleExample: "I have gone there before.",
+          sentence: "Yesterday, I ___ to the park.",
+        },
+        {
+          base: "eat",
+          past: "ate",
+          participle: "eaten",
+          hint: "Eat becomes ate in the past. The have form is eaten.",
+          pastExample: "I ate rice for lunch.",
+          participleExample: "I have eaten rice today.",
+          sentence: "At lunch, Mia ___ an apple.",
+        },
+        {
+          base: "build",
+          past: "built",
+          participle: "built",
+          hint: "Build changes the ending: build, built, built.",
+          pastExample: "We built a tower.",
+          participleExample: "We have built a tower.",
+          sentence: "The class ___ a cardboard city.",
+        },
+        {
+          base: "do",
+          past: "did",
+          participle: "done",
+          hint: "Do uses did for yesterday and done after have.",
+          pastExample: "I did my homework.",
+          participleExample: "I have done my homework.",
+          sentence: "Sam ___ his homework before dinner.",
+        },
+        {
+          base: "see",
+          past: "saw",
+          participle: "seen",
+          hint: "See becomes saw, then seen.",
+          pastExample: "I saw a rainbow.",
+          participleExample: "I have seen a rainbow.",
+          sentence: "We ___ a rainbow after the rain.",
+        },
+        {
+          base: "make",
+          past: "made",
+          participle: "made",
+          hint: "Make becomes made for both past forms.",
+          pastExample: "She made a cake.",
+          participleExample: "She has made a cake.",
+          sentence: "Ava ___ a paper airplane.",
+        },
+        {
+          base: "take",
+          past: "took",
+          participle: "taken",
+          hint: "Take becomes took, then taken.",
+          pastExample: "He took a photo.",
+          participleExample: "He has taken a photo.",
+          sentence: "Leo ___ a photo of the moon.",
+        },
+        {
+          base: "give",
+          past: "gave",
+          participle: "given",
+          hint: "Give becomes gave, then given.",
+          pastExample: "Dad gave me a book.",
+          participleExample: "Dad has given me a book.",
+          sentence: "The teacher ___ us stickers.",
+        },
+        {
+          base: "come",
+          past: "came",
+          participle: "come",
+          hint: "Come changes in the middle: come, came, come.",
+          pastExample: "My friend came over.",
+          participleExample: "My friend has come over.",
+          sentence: "My cousin ___ to play.",
+        },
+        {
+          base: "drink",
+          past: "drank",
+          participle: "drunk",
+          hint: "Drink becomes drank, then drunk.",
+          pastExample: "I drank water.",
+          participleExample: "I have drunk water.",
+          sentence: "After soccer, I ___ water.",
+        },
+        {
+          base: "drive",
+          past: "drove",
+          participle: "driven",
+          hint: "Drive becomes drove, then driven.",
+          pastExample: "Mom drove the car.",
+          participleExample: "Mom has driven the car.",
+          sentence: "Dad ___ us to school.",
+        },
+        {
+          base: "get",
+          past: "got",
+          participle: "gotten",
+          hint: "Get becomes got. In American English, have often uses gotten.",
+          pastExample: "I got a new pencil.",
+          participleExample: "I have gotten a new pencil.",
+          sentence: "Nora ___ a new notebook.",
+        },
+        {
+          base: "grow",
+          past: "grew",
+          participle: "grown",
+          hint: "Grow becomes grew, then grown.",
+          pastExample: "The plant grew tall.",
+          participleExample: "The plant has grown tall.",
+          sentence: "Our bean plant ___ taller.",
+        },
+        {
+          base: "have",
+          past: "had",
+          participle: "had",
+          hint: "Have becomes had for both past forms.",
+          pastExample: "I had a sandwich.",
+          participleExample: "I have had a sandwich.",
+          sentence: "Ben ___ a red backpack.",
+        },
+        {
+          base: "hear",
+          past: "heard",
+          participle: "heard",
+          hint: "Hear keeps the sound close: hear, heard, heard.",
+          pastExample: "I heard music.",
+          participleExample: "I have heard that song.",
+          sentence: "Lily ___ a bird singing.",
+        },
+        {
+          base: "know",
+          past: "knew",
+          participle: "known",
+          hint: "Know becomes knew, then known.",
+          pastExample: "I knew the answer.",
+          participleExample: "I have known that answer.",
+          sentence: "Max ___ the answer right away.",
+        },
+        {
+          base: "learn",
+          past: "learnt",
+          participle: "learnt",
+          hint: "Learn can be learned or learnt. This game practices learnt.",
+          pastExample: "I learnt a new word.",
+          participleExample: "I have learnt a new word.",
+          sentence: "The team ___ a new song.",
+        },
+        {
+          base: "read",
+          past: "read",
+          participle: "read",
+          hint: "Read is spelled the same, but the past sounds like red.",
+          pastExample: "I read a comic.",
+          participleExample: "I have read a comic.",
+          sentence: "I ___ a funny story last night.",
+        },
+        {
+          base: "ride",
+          past: "rode",
+          participle: "ridden",
+          hint: "Ride becomes rode, then ridden.",
+          pastExample: "She rode a bike.",
+          participleExample: "She has ridden a bike.",
+          sentence: "Ella ___ her bike home.",
+        },
+        {
+          base: "sit",
+          past: "sat",
+          participle: "sat",
+          hint: "Sit becomes sat for both past forms.",
+          pastExample: "The cat sat by me.",
+          participleExample: "The cat has sat by me.",
+          sentence: "The dog ___ near the door.",
+        },
+        {
+          base: "run",
+          past: "ran",
+          participle: "run",
+          hint: "Run becomes ran, then run again.",
+          pastExample: "I ran fast.",
+          participleExample: "I have run fast.",
+          sentence: "Tom ___ across the yard.",
+        },
+        {
+          base: "write",
+          past: "wrote",
+          participle: "written",
+          hint: "Write becomes wrote, then written.",
+          pastExample: "She wrote a note.",
+          participleExample: "She has written a note.",
+          sentence: "Zoe ___ a thank-you note.",
+        },
+        {
+          base: "speak",
+          past: "spoke",
+          participle: "spoken",
+          hint: "Speak becomes spoke, then spoken.",
+          pastExample: "He spoke clearly.",
+          participleExample: "He has spoken clearly.",
+          sentence: "The captain ___ to the team.",
+        },
+        {
+          base: "buy",
+          past: "bought",
+          participle: "bought",
+          hint: "Buy becomes bought for both past forms.",
+          pastExample: "I bought crayons.",
+          participleExample: "I have bought crayons.",
+          sentence: "Grandma ___ new crayons.",
+        },
+        {
+          base: "swim",
+          past: "swam",
+          participle: "swum",
+          hint: "Swim becomes swam, then swum.",
+          pastExample: "We swam in the pool.",
+          participleExample: "We have swum in the pool.",
+          sentence: "The children ___ in the pool.",
+        },
+      ];
+
+      const levelSizes = [8, 16, 25];
+      const memoryPairsPerRound = 6;
+      const verbVisuals = {
+        go: ["path", "a path to the park"],
+        eat: ["apple", "an apple at lunch"],
+        build: ["blocks", "blocks becoming a tower"],
+        do: ["pencil", "homework with a pencil"],
+        see: ["rainbow", "eyes seeing a rainbow"],
+        make: ["plane", "a paper airplane"],
+        take: ["camera", "a camera taking a photo"],
+        give: ["gift", "a gift being given"],
+        come: ["door", "a friend coming to the door"],
+        drink: ["cup", "a cup of water"],
+        drive: ["car", "a car ride to school"],
+        get: ["notebook", "a new notebook"],
+        grow: ["plant", "a plant growing taller"],
+        have: ["backpack", "a red backpack"],
+        hear: ["music", "music notes in the air"],
+        know: ["light", "a bright idea"],
+        learn: ["book", "a new word in a book"],
+        read: ["comic", "a funny story"],
+        ride: ["bike", "a bike ride"],
+        sit: ["chair", "a chair by the door"],
+        run: ["shoe", "running shoes"],
+        write: ["letter", "a thank-you note"],
+        speak: ["speech", "speaking to a team"],
+        buy: ["crayons", "new crayons"],
+        swim: ["pool", "swimming in a pool"],
+      };
+
+      const nanobanaLogos = {
+        go: "logos/logo_go.png",
+        eat: "logos/logo_eat.png",
+        build: "logos/logo_build.png",
+        do: "logos/logo_do.png",
+        see: "logos/logo_see.png",
+        make: "logos/logo_make.png",
+        take: "logos/logo_take.png",
+        give: "logos/logo_give.png?v=3",
+      };
+      const state = {
+        level: 1,
+        score: 0,
+        screen: "learn",
+        activeIndex: 0,
+        learned: new Set(),
+        missed: new Set(),
+        selectedBase: null,
+        selectedPast: null,
+        matched: new Set(),
+        memoryCards: [],
+        memoryQueue: [],
+        memoryRound: 0,
+        memoryTotalRounds: 1,
+        flipped: [],
+        memoryMatched: new Set(),
+        detectiveQueue: [],
+        detectiveRound: 0,
+        perfectPairQueue: [],
+        perfectPairRound: 0,
+        missingLettersQueue: [],
+        missingLettersRound: 0,
+        questions: [],
+        questionIndex: 0,
+        answeredCurrent: false,
+        replayMode: false,
+        replayVerbs: [],
+      };
+
+      const els = {
+        score: document.getElementById("score"),
+        level: document.getElementById("level"),
+        progressText: document.getElementById("progressText"),
+        progressFill: document.getElementById("progressFill"),
+        learnedCount: document.getElementById("learnedCount"),
+        levelScope: document.getElementById("levelScope"),
+        baseWord: document.getElementById("baseWord"),
+        pastWord: document.getElementById("pastWord"),
+        participleWord: document.getElementById("participleWord"),
+        verbPicture: document.getElementById("verbPicture"),
+        pictureCaption: document.getElementById("pictureCaption"),
+        hintText: document.getElementById("hintText"),
+        pastExample: document.getElementById("pastExample"),
+        participleExample: document.getElementById("participleExample"),
+        verbList: document.getElementById("verbList"),
+        startPractice: document.getElementById("startPractice"),
+        baseColumn: document.getElementById("baseColumn"),
+        pastColumn: document.getElementById("pastColumn"),
+        matchCount: document.getElementById("matchCount"),
+        matchFeedback: document.getElementById("matchFeedback"),
+        toMemory: document.getElementById("toMemory"),
+        memoryBoard: document.getElementById("memoryBoard"),
+        memoryCount: document.getElementById("memoryCount"),
+        memoryFeedback: document.getElementById("memoryFeedback"),
+        toDetective: document.getElementById("toDetective"),
+        detectiveCount: document.getElementById("detectiveCount"),
+        detectiveWord: document.getElementById("detectiveWord"),
+        detectiveFeedback: document.getElementById("detectiveFeedback"),
+        toPerfectPair: document.getElementById("toPerfectPair"),
+        perfectPairCount: document.getElementById("perfectPairCount"),
+        perfectPairWord: document.getElementById("perfectPairWord"),
+        perfectPairChoices: document.getElementById("perfectPairChoices"),
+        perfectPairFeedback: document.getElementById("perfectPairFeedback"),
+        toMissingLetters: document.getElementById("toMissingLetters"),
+        missingLettersCount: document.getElementById("missingLettersCount"),
+        missingWordDisplay: document.getElementById("missingWordDisplay"),
+        missingPresentWord: document.getElementById("missingPresentWord"),
+        missingLettersInput: document.getElementById("missingLettersInput"),
+        missingLettersSubmit: document.getElementById("missingLettersSubmit"),
+        missingLettersFeedback: document.getElementById("missingLettersFeedback"),
+        toUse: document.getElementById("toUse"),
+        questionCount: document.getElementById("questionCount"),
+        sentencePicture: document.getElementById("sentencePicture"),
+        sentenceText: document.getElementById("sentenceText"),
+        answerChoices: document.getElementById("answerChoices"),
+        sentenceFeedback: document.getElementById("sentenceFeedback"),
+        nextQuestion: document.getElementById("nextQuestion"),
+        missedList: document.getElementById("missedList"),
+        roundResult: document.getElementById("roundResult"),
+        reviewMessage: document.getElementById("reviewMessage"),
+        replayMissed: document.getElementById("replayMissed"),
+        nextLevel: document.getElementById("nextLevel"),
+      };
+
+      function getActiveVerbs() {
+        if (state.replayMode && state.replayVerbs.length) {
+          return state.replayVerbs;
+        }
+        return verbs.slice(0, levelSizes[state.level - 1]);
+      }
+
+      function shuffle(items) {
+        const copy = [...items];
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
+      function verbPicture(verb, size = "large", hideAnswer = false) {
+        const [kind, label] = verbVisuals[verb.base] || [
+          "light",
+          `${verb.base} picture`,
+        ];
+        const compact = size === "thumb";
+        const fontSize = compact ? 13 : 18;
+        const textContent = hideAnswer ? verb.base : `${verb.base} - ${verb.past}`;
+        
+        let picture;
+        if (nanobanaLogos[verb.base]) {
+          picture = `<image href="${nanobanaLogos[verb.base]}" x="40" y="20" width="140" height="100" preserveAspectRatio="xMidYMid meet" clip-path="inset(0 round 16px)" />`;
+        } else {
+          picture = symbolFor(kind);
+        }
+
+        return `
+        <svg viewBox="0 0 220 160" role="img" aria-label="${label}">
+          <rect x="8" y="8" width="204" height="144" rx="18" fill="#f8fbff" stroke="#d8e0eb" stroke-width="4"></rect>
+          <circle cx="44" cy="38" r="20" fill="#ffd166"></circle>
+          <path d="M24 116 C62 88 98 132 138 104 C166 84 184 96 204 82 L204 152 L24 152 Z" fill="#dff8ec"></path>
+          <path d="M8 118 C48 96 74 129 112 110 C150 91 174 102 212 88" fill="none" stroke="#70c1ff" stroke-width="7" stroke-linecap="round"></path>
+          ${picture}
+          <text x="110" y="142" text-anchor="middle" fill="#203047" font-size="${fontSize}" font-weight="900">${textContent}</text>
+        </svg>
+      `;
+      }
+
+      function symbolFor(kind) {
+        const symbols = {
+          path: `<path d="M68 122 C96 96 122 86 160 54" fill="none" stroke="#7c6ee6" stroke-width="12" stroke-linecap="round" stroke-dasharray="2 18"></path><path d="M150 52 l25 8 -20 18" fill="none" stroke="#203047" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path>`,
+          apple: `<circle cx="110" cy="78" r="34" fill="#ff7a70"></circle><circle cx="131" cy="78" r="29" fill="#ef5f58"></circle><path d="M113 40 C118 26 132 24 139 30" fill="none" stroke="#178957" stroke-width="7" stroke-linecap="round"></path><path d="M109 41 C100 28 91 31 86 37" fill="#7bdcb5"></path>`,
+          blocks: `<rect x="67" y="85" width="40" height="38" rx="6" fill="#70c1ff" stroke="#203047" stroke-width="4"></rect><rect x="113" y="85" width="40" height="38" rx="6" fill="#ffd166" stroke="#203047" stroke-width="4"></rect><rect x="90" y="45" width="40" height="38" rx="6" fill="#7bdcb5" stroke="#203047" stroke-width="4"></rect>`,
+          pencil: `<path d="M70 104 L142 32 L162 52 L90 124 Z" fill="#ffd166" stroke="#203047" stroke-width="4"></path><path d="M142 32 L154 22 L174 42 L162 52 Z" fill="#ff7a70" stroke="#203047" stroke-width="4"></path><path d="M70 104 L58 134 L90 124 Z" fill="#fffdf4" stroke="#203047" stroke-width="4"></path>`,
+          rainbow: `<path d="M50 108 A60 60 0 0 1 170 108" fill="none" stroke="#ff7a70" stroke-width="12"></path><path d="M66 108 A44 44 0 0 1 154 108" fill="none" stroke="#ffd166" stroke-width="12"></path><path d="M82 108 A28 28 0 0 1 138 108" fill="none" stroke="#7bdcb5" stroke-width="12"></path><circle cx="78" cy="64" r="7" fill="#203047"></circle><circle cx="142" cy="64" r="7" fill="#203047"></circle>`,
+          plane: `<path d="M48 58 L174 34 L125 124 L105 84 L48 58 Z" fill="#ffffff" stroke="#203047" stroke-width="5" stroke-linejoin="round"></path><path d="M105 84 L174 34" stroke="#70c1ff" stroke-width="5" stroke-linecap="round"></path>`,
+          camera: `<rect x="58" y="54" width="104" height="72" rx="12" fill="#7c6ee6" stroke="#203047" stroke-width="5"></rect><rect x="78" y="42" width="38" height="18" rx="6" fill="#ffd166" stroke="#203047" stroke-width="4"></rect><circle cx="110" cy="90" r="24" fill="#f8fbff" stroke="#203047" stroke-width="5"></circle><circle cx="110" cy="90" r="10" fill="#70c1ff"></circle>`,
+          gift: `<rect x="62" y="70" width="96" height="58" rx="8" fill="#ff7a70" stroke="#203047" stroke-width="5"></rect><path d="M110 70 v58 M62 88 h96" stroke="#ffd166" stroke-width="8"></path><path d="M110 69 C90 42 69 57 85 70 C95 77 105 74 110 69 C120 43 143 55 130 70 C122 79 114 74 110 69 Z" fill="#ffd166" stroke="#203047" stroke-width="4"></path>`,
+          door: `<rect x="77" y="34" width="72" height="98" rx="8" fill="#ffd166" stroke="#203047" stroke-width="5"></rect><circle cx="132" cy="84" r="5" fill="#203047"></circle><path d="M58 132 h105" stroke="#203047" stroke-width="5" stroke-linecap="round"></path><path d="M46 78 h36" stroke="#7c6ee6" stroke-width="8" stroke-linecap="round"></path>`,
+          cup: `<path d="M74 52 h86 l-10 76 h-66 Z" fill="#70c1ff" stroke="#203047" stroke-width="5" stroke-linejoin="round"></path><path d="M157 72 h16 a16 16 0 0 1 0 32 h-18" fill="none" stroke="#203047" stroke-width="5"></path><path d="M86 72 h62" stroke="#ffffff" stroke-width="7" stroke-linecap="round"></path>`,
+          car: `<path d="M48 98 h18 l18-28 h64 l18 28 h12 a14 14 0 0 1 14 14 v10 H34 v-10 a14 14 0 0 1 14-14 Z" fill="#7bdcb5" stroke="#203047" stroke-width="5" stroke-linejoin="round"></path><circle cx="74" cy="124" r="14" fill="#203047"></circle><circle cx="158" cy="124" r="14" fill="#203047"></circle><path d="M91 73 h40 l13 25 h-62 Z" fill="#f8fbff" stroke="#203047" stroke-width="4"></path>`,
+          notebook: `<rect x="68" y="36" width="92" height="100" rx="8" fill="#ffffff" stroke="#203047" stroke-width="5"></rect><path d="M84 36 v100" stroke="#7c6ee6" stroke-width="6"></path><path d="M98 62 h42 M98 82 h42 M98 102 h32" stroke="#70c1ff" stroke-width="5" stroke-linecap="round"></path>`,
+          plant: `<path d="M110 128 V62" stroke="#178957" stroke-width="8" stroke-linecap="round"></path><path d="M110 85 C75 72 72 45 107 55 C115 64 119 75 110 85 Z" fill="#7bdcb5" stroke="#203047" stroke-width="4"></path><path d="M111 72 C145 55 158 78 123 96 C115 91 110 82 111 72 Z" fill="#7bdcb5" stroke="#203047" stroke-width="4"></path><rect x="76" y="120" width="68" height="22" rx="8" fill="#ff7a70" stroke="#203047" stroke-width="4"></rect>`,
+          backpack: `<path d="M70 62 a40 40 0 0 1 80 0 v66 H70 Z" fill="#ff7a70" stroke="#203047" stroke-width="5"></path><path d="M88 62 a22 22 0 0 1 44 0" fill="none" stroke="#203047" stroke-width="5"></path><rect x="88" y="88" width="44" height="32" rx="8" fill="#ffd166" stroke="#203047" stroke-width="4"></rect>`,
+          music: `<path d="M88 42 v78" stroke="#7c6ee6" stroke-width="8" stroke-linecap="round"></path><path d="M88 46 l56-14 v78" stroke="#7c6ee6" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="76" cy="122" r="16" fill="#ffd166" stroke="#203047" stroke-width="4"></circle><circle cx="132" cy="110" r="16" fill="#ffd166" stroke="#203047" stroke-width="4"></circle>`,
+          light: `<circle cx="110" cy="70" r="30" fill="#ffd166" stroke="#203047" stroke-width="5"></circle><path d="M92 102 h36 l-8 24 h-20 Z" fill="#ffffff" stroke="#203047" stroke-width="5"></path><path d="M72 70 H50 M170 70 h-22 M110 30 V16 M150 38 l14-14 M70 38 56 24" stroke="#ffd166" stroke-width="8" stroke-linecap="round"></path>`,
+          book: `<path d="M52 48 h72 a22 22 0 0 1 22 22 v70 H74 a22 22 0 0 0-22 0 Z" fill="#70c1ff" stroke="#203047" stroke-width="5" stroke-linejoin="round"></path><path d="M146 48 h20 a16 16 0 0 1 16 16 v70 h-36 Z" fill="#ffffff" stroke="#203047" stroke-width="5"></path><path d="M78 76 h42 M78 96 h34" stroke="#ffffff" stroke-width="5" stroke-linecap="round"></path>`,
+          comic: `<rect x="54" y="42" width="112" height="92" rx="10" fill="#ffffff" stroke="#203047" stroke-width="5"></rect><path d="M66 58 h40 v30 H66 Z M114 58 h40 v30 h-40 Z M66 98 h88 v20 H66 Z" fill="#ffd166" stroke="#203047" stroke-width="3"></path>`,
+          bike: `<circle cx="70" cy="116" r="24" fill="none" stroke="#203047" stroke-width="6"></circle><circle cx="158" cy="116" r="24" fill="none" stroke="#203047" stroke-width="6"></circle><path d="M70 116 L100 76 L126 116 H70 L112 116 L158 116 L132 76 H100" fill="none" stroke="#7c6ee6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>`,
+          chair: `<rect x="78" y="54" width="76" height="48" rx="8" fill="#ffd166" stroke="#203047" stroke-width="5"></rect><path d="M86 102 v36 M146 102 v36 M82 116 h72" stroke="#203047" stroke-width="6" stroke-linecap="round"></path>`,
+          shoe: `<path d="M52 106 C80 104 100 84 116 76 C128 92 148 104 182 108 v18 H52 Z" fill="#70c1ff" stroke="#203047" stroke-width="5" stroke-linejoin="round"></path><path d="M78 106 l20 18 M102 96 l20 20" stroke="#ffffff" stroke-width="5" stroke-linecap="round"></path>`,
+          letter: `<rect x="58" y="52" width="104" height="76" rx="8" fill="#ffffff" stroke="#203047" stroke-width="5"></rect><path d="M60 58 l50 42 50-42" fill="none" stroke="#70c1ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path><path d="M82 112 h56" stroke="#ffd166" stroke-width="6" stroke-linecap="round"></path>`,
+          speech: `<path d="M58 54 h104 a18 18 0 0 1 18 18 v28 a18 18 0 0 1-18 18 h-46 l-30 24 8-24 H58 a18 18 0 0 1-18-18 V72 a18 18 0 0 1 18-18 Z" fill="#ffffff" stroke="#203047" stroke-width="5" stroke-linejoin="round"></path><path d="M74 84 h72 M74 102 h46" stroke="#7c6ee6" stroke-width="6" stroke-linecap="round"></path>`,
+          crayons: `<path d="M70 126 L94 48 L118 126 Z" fill="#ff7a70" stroke="#203047" stroke-width="4"></path><path d="M106 126 L130 48 L154 126 Z" fill="#70c1ff" stroke="#203047" stroke-width="4"></path><path d="M88 68 h22 M124 68 h22" stroke="#ffffff" stroke-width="5"></path>`,
+          pool: `<path d="M48 96 C70 82 92 112 114 96 C136 82 158 112 180 96" fill="none" stroke="#70c1ff" stroke-width="10" stroke-linecap="round"></path><path d="M48 122 C70 108 92 138 114 122 C136 108 158 138 180 122" fill="none" stroke="#7c6ee6" stroke-width="10" stroke-linecap="round"></path><circle cx="110" cy="70" r="20" fill="#ffd166" stroke="#203047" stroke-width="5"></circle>`,
+        };
+        return symbols[kind] || symbols.light;
+      }
+
+      function setScreen(name) {
+        state.screen = name;
+        document.querySelectorAll(".screen").forEach((screen) => {
+          screen.classList.toggle("active", screen.id === name);
+        });
+        document.querySelectorAll("[data-screen-button]").forEach((button) => {
+          const isCurrent = button.dataset.screenButton === name;
+          if (isCurrent) {
+            button.setAttribute("aria-current", "step");
+          } else {
+            button.removeAttribute("aria-current");
+          }
+        });
+        updateStats();
+      }
+
+      function updateStats() {
+        const totalLevels = levelSizes.length;
+        const levelProgress = ((state.level - 1) / totalLevels) * 100;
+        const roundProgress = state.screen === "review" ? 100 / totalLevels : 0;
+        const progress = Math.min(
+          100,
+          Math.round(levelProgress + roundProgress),
+        );
+        els.score.textContent = state.score;
+        els.level.textContent = state.level;
+        els.progressText.textContent = `${progress}%`;
+        els.progressFill.style.width = `${progress}%`;
+      }
+
+      function renderLearn() {
+        const activeVerbs = getActiveVerbs();
+        state.activeIndex = Math.min(state.activeIndex, activeVerbs.length - 1);
+        const verb = activeVerbs[state.activeIndex];
+        els.baseWord.textContent = verb.base;
+        els.pastWord.textContent = verb.past;
+        els.participleWord.textContent = verb.participle;
+        els.verbPicture.innerHTML = verbPicture(verb);
+        els.pictureCaption.textContent = `Picture clue: ${verbVisuals[verb.base]?.[1] || verb.base}.`;
+        els.hintText.textContent = verb.hint;
+        els.pastExample.textContent = verb.pastExample;
+        els.participleExample.textContent = verb.participleExample;
+        els.learnedCount.textContent = `${state.learned.size} learned`;
+        els.levelScope.textContent = `${activeVerbs.length} verbs`;
+        els.startPractice.disabled =
+          state.learned.size < Math.min(8, activeVerbs.length);
+
+        els.verbList.innerHTML = "";
+        activeVerbs.forEach((item, index) => {
+          const button = document.createElement("button");
+          button.className = "mini-card";
+          button.classList.toggle("active", index === state.activeIndex);
+          button.classList.toggle("learned", state.learned.has(item.base));
+          button.innerHTML = `<span><strong>${item.base}</strong><br><small>${item.past} / ${item.participle}</small></span><span class="dot" aria-hidden="true"></span>`;
+          button.setAttribute(
+            "aria-label",
+            `Review ${item.base}, ${item.past}, ${item.participle}`,
+          );
+          button.addEventListener("click", () => {
+            state.activeIndex = index;
+            renderLearn();
+          });
+          els.verbList.append(button);
+        });
+        updateStats();
+      }
+
+      function markCurrentLearned(moveNext = false) {
+        const verb = getActiveVerbs()[state.activeIndex];
+        state.learned.add(verb.base);
+        if (moveNext && state.activeIndex < getActiveVerbs().length - 1) {
+          state.activeIndex += 1;
+        }
+        renderLearn();
+      }
+
+      function startMatch() {
+        state.selectedBase = null;
+        state.selectedPast = null;
+        state.matched = new Set();
+        els.toMemory.disabled = true;
+        els.matchFeedback.textContent =
+          "Choose a base verb, then choose its past form.";
+        els.matchFeedback.className = "feedback";
+        renderMatch();
+        unlockTab("match");
+        setScreen("match");
+      }
+
+      function renderMatch() {
+        const activeVerbs = getActiveVerbs();
+        els.matchCount.textContent = `${state.matched.size} matched`;
+        els.baseColumn.innerHTML = "";
+        els.pastColumn.innerHTML = "";
+
+        activeVerbs.forEach((verb) => {
+          els.baseColumn.append(createMatchButton(verb, "base", verb.base));
+        });
+
+        shuffle(activeVerbs).forEach((verb) => {
+          els.pastColumn.append(createMatchButton(verb, "past", verb.past));
+        });
+      }
+
+      function createMatchButton(verb, type, label) {
+        const button = document.createElement("button");
+        button.className = "choice-card";
+        button.textContent = label;
+        button.dataset.verb = verb.base;
+        button.dataset.type = type;
+        button.disabled = state.matched.has(verb.base);
+        if (button.disabled) {
+          button.classList.add("matched");
+        }
+        button.addEventListener("click", () => selectMatch(button, verb, type));
+        return button;
+      }
+
+      function selectMatch(button, verb, type) {
+        document
+          .querySelectorAll(`.choice-card[data-type="${type}"]`)
+          .forEach((item) => item.classList.remove("selected"));
+        button.classList.add("selected");
+        if (type === "base") {
+          state.selectedBase = verb;
+        } else {
+          state.selectedPast = verb;
+        }
+        if (state.selectedBase && state.selectedPast) {
+          checkMatch();
+        }
+      }
+
+      function checkMatch() {
+        const correct = state.selectedBase.base === state.selectedPast.base;
+        const selectedButtons = document.querySelectorAll(
+          ".choice-card.selected",
+        );
+        if (correct) {
+          state.score += 10;
+          state.matched.add(state.selectedBase.base);
+          selectedButtons.forEach((button) => {
+            button.classList.add("correct", "matched");
+            button.disabled = true;
+          });
+          els.matchFeedback.textContent = `Correct: ${state.selectedBase.base} becomes ${state.selectedBase.past}.`;
+          els.matchFeedback.className = "feedback good";
+        } else {
+          state.missed.add(state.selectedBase.base);
+          selectedButtons.forEach((button) => button.classList.add("wrong"));
+          els.matchFeedback.textContent = `Try again: ${state.selectedBase.base} matches ${state.selectedBase.past}.`;
+          els.matchFeedback.className = "feedback bad";
+        }
+
+        window.setTimeout(
+          () => {
+            document
+              .querySelectorAll(".choice-card")
+              .forEach((button) =>
+                button.classList.remove("selected", "wrong"),
+              );
+            state.selectedBase = null;
+            state.selectedPast = null;
+            els.matchCount.textContent = `${state.matched.size} matched`;
+            if (state.matched.size === getActiveVerbs().length) {
+              els.toMemory.disabled = false;
+              els.matchFeedback.textContent =
+                "All pairs matched. Time for memory practice.";
+              els.matchFeedback.className = "feedback good";
+            }
+            updateStats();
+          },
+          correct ? 320 : 900,
+        );
+      }
+
+      function startMemory() {
+        const activeVerbs = getActiveVerbs();
+        state.memoryQueue = shuffle(activeVerbs);
+        state.memoryRound = 0;
+        state.memoryMatched = new Set();
+        els.toUse.disabled = true;
+        renderLogoQuiz();
+        unlockTab("memory");
+        setScreen("memory");
+      }
+
+      function renderLogoQuiz() {
+        const verb = state.memoryQueue[state.memoryRound];
+        if (!verb) {
+          finishMemoryRound();
+          return;
+        }
+        els.memoryCount.textContent = `${state.memoryRound} / ${state.memoryQueue.length} solved`;
+        els.memoryFeedback.textContent = "Tap the letters to spell the past tense word.";
+        els.memoryFeedback.className = "feedback";
+
+        document.getElementById("logoPicture").innerHTML = verbPicture(verb, "large", true);
+        
+        document.getElementById("quizHint").textContent = verb.base;
+
+        state.logoQuizAnswer = verb.past.toUpperCase();
+        state.logoQuizCurrent = Array(state.logoQuizAnswer.length).fill(null);
+        
+        // Keep only the letters for the past tense word as requested
+        const letters = state.logoQuizAnswer.split('');
+        state.logoQuizPool = shuffle(letters).map((l, i) => ({ id: i, letter: l, used: false }));
+        
+        renderLogoQuizUI();
+      }
+
+      function renderLogoQuizUI() {
+        const wordBlanksEl = document.getElementById("wordBlanks");
+        wordBlanksEl.innerHTML = "";
+        state.logoQuizCurrent.forEach((letterObj, index) => {
+          const box = document.createElement("button");
+          box.className = "blank-box";
+          if (letterObj) {
+            box.textContent = letterObj.letter;
+            box.classList.add("filled");
+            box.addEventListener("click", () => returnLetterToPool(index));
+          }
+          wordBlanksEl.append(box);
+        });
+
+        const letterPoolEl = document.getElementById("letterPool");
+        letterPoolEl.innerHTML = "";
+        state.logoQuizPool.forEach(poolItem => {
+          const btn = document.createElement("button");
+          btn.className = "pool-letter";
+          btn.textContent = poolItem.letter;
+          if (poolItem.used) {
+            btn.classList.add("used");
+            btn.disabled = true;
+          } else {
+            btn.addEventListener("click", () => selectLetterFromPool(poolItem));
+          }
+          letterPoolEl.append(btn);
+        });
+      }
+
+      function selectLetterFromPool(poolItem) {
+        const emptyIndex = state.logoQuizCurrent.findIndex(l => l === null);
+        if (emptyIndex !== -1) {
+          state.logoQuizCurrent[emptyIndex] = poolItem;
+          poolItem.used = true;
+          renderLogoQuizUI();
+          checkLogoQuiz();
+        }
+      }
+
+      function returnLetterToPool(blankIndex) {
+        const letterObj = state.logoQuizCurrent[blankIndex];
+        if (letterObj) {
+          letterObj.used = false;
+          state.logoQuizCurrent[blankIndex] = null;
+          renderLogoQuizUI();
+        }
+      }
+
+      function checkLogoQuiz() {
+        if (state.logoQuizCurrent.every(l => l !== null)) {
+          const guess = state.logoQuizCurrent.map(l => l.letter).join('');
+          if (guess === state.logoQuizAnswer) {
+            state.score += 15;
+            els.memoryFeedback.textContent = `Correct! ${state.memoryQueue[state.memoryRound].base} becomes ${state.logoQuizAnswer.toLowerCase()}.`;
+            els.memoryFeedback.className = "feedback good";
+            
+            document.querySelectorAll(".blank-box").forEach(b => b.classList.add("correct"));
+            
+            window.setTimeout(() => {
+              state.memoryRound++;
+              renderLogoQuiz();
+              updateStats();
+            }, 1000);
+          } else {
+            state.missed.add(state.memoryQueue[state.memoryRound].base);
+            els.memoryFeedback.textContent = "Not quite. Try again.";
+            els.memoryFeedback.className = "feedback bad";
+            document.querySelectorAll(".blank-box").forEach(b => b.classList.add("wrong"));
+            window.setTimeout(() => {
+              document.querySelectorAll(".blank-box").forEach(b => b.classList.remove("wrong"));
+            }, 500);
+          }
+        }
+      }
+
+      function finishMemoryRound() {
+        els.memoryCount.textContent = `${state.memoryQueue.length} / ${state.memoryQueue.length} solved`;
+        els.toDetective.disabled = false;
+        els.toDetective.textContent = "Play Detective";
+        els.memoryFeedback.textContent =
+          "Logo quiz complete! Next, investigate word forms.";
+        els.memoryFeedback.className = "feedback good";
+        document.getElementById("wordBlanks").innerHTML = "";
+        document.getElementById("letterPool").innerHTML = "";
+        document.getElementById("logoPicture").innerHTML = "";
+      }
+
+      function continueAfterMemory() {
+        startDetective();
+      }
+
+      function startDetective() {
+        const activeVerbs = getActiveVerbs();
+        state.detectiveQueue = shuffle(activeVerbs.map(v => {
+          const rand = Math.random();
+          let form, word;
+          if (rand < 0.33) { form = "base"; word = v.base; }
+          else if (rand < 0.66) { form = "past"; word = v.past; }
+          else { form = "participle"; word = v.participle; }
+          return { verb: v, word, form };
+        }));
+        state.detectiveRound = 0;
+        els.toUse.disabled = true;
+        renderDetective();
+        unlockTab("detective");
+        setScreen("detective");
+      }
+
+      function renderDetective() {
+        const item = state.detectiveQueue[state.detectiveRound];
+        if (!item) {
+          finishDetectiveRound();
+          return;
+        }
+        els.detectiveCount.textContent = `${state.detectiveRound} / ${state.detectiveQueue.length} solved`;
+        els.detectiveFeedback.textContent = "Select Base, Past, or Participle.";
+        els.detectiveFeedback.className = "feedback";
+        
+        els.detectiveWord.textContent = item.word;
+        document.querySelectorAll(".choice-btn").forEach(btn => {
+          btn.classList.remove("correct", "wrong", "disabled");
+        });
+      }
+
+      function answerDetective(guessedForm, btnElement) {
+        const item = state.detectiveQueue[state.detectiveRound];
+        const correct = guessedForm === item.form;
+        
+        document.querySelectorAll(".choice-btn").forEach(btn => btn.classList.add("disabled"));
+        
+        if (correct) {
+          state.score += 10;
+          btnElement.classList.add("correct");
+          els.detectiveFeedback.textContent = `Correct! "${item.word}" is the ${item.form} form of ${item.verb.base}.`;
+          els.detectiveFeedback.className = "feedback good";
+        } else {
+          state.missed.add(item.verb.base);
+          btnElement.classList.add("wrong");
+          document.querySelector(`.choice-btn[data-form="${item.form}"]`).classList.add("correct");
+          els.detectiveFeedback.textContent = `Oops! "${item.word}" is the ${item.form} form.`;
+          els.detectiveFeedback.className = "feedback bad";
+        }
+        
+        window.setTimeout(() => {
+          state.detectiveRound++;
+          renderDetective();
+          updateStats();
+        }, 1500);
+      }
+
+      function finishDetectiveRound() {
+        els.detectiveCount.textContent = `${state.detectiveQueue.length} / ${state.detectiveQueue.length} solved`;
+        els.toPerfectPair.disabled = false;
+        els.toPerfectPair.textContent = "Play Perfect Pair";
+        els.detectiveFeedback.textContent = "Detective work complete! Now find perfect pairs.";
+        els.detectiveFeedback.className = "feedback good";
+      }
+
+      function continueAfterDetective() {
+        startPerfectPair();
+      }
+
+      function startPerfectPair() {
+        const activeVerbs = getActiveVerbs();
+        state.perfectPairQueue = shuffle([...activeVerbs]);
+        state.perfectPairRound = 0;
+        els.toUse.disabled = true;
+        renderPerfectPair();
+        unlockTab("perfectpair");
+        setScreen("perfectpair");
+      }
+
+      function generateDistractors(verb) {
+        const baseEd = verb.base.endsWith('e') ? verb.base + 'd' : verb.base + 'ed';
+        let d1 = `${baseEd} / ${baseEd}`;
+        let d2 = `${verb.past} / ${verb.past}`;
+        
+        if (verb.past === verb.participle) {
+            d2 = `${verb.base} / ${verb.base}`;
+        }
+        
+        const correct = `${verb.past} / ${verb.participle}`;
+        if (d1 === correct) d1 = `${verb.base}en / ${verb.base}en`;
+        if (d2 === correct) d2 = `${verb.base} / ${verb.base}en`;
+        
+        if (verb.base === "eat") d1 = "eated / eated";
+        if (verb.base === "see") d1 = "sawed / sawed";
+        if (verb.base === "go") d1 = "goed / goed";
+        if (verb.base === "run") d1 = "runned / runned";
+        
+        return shuffle([correct, d1, d2]);
+      }
+
+      function renderPerfectPair() {
+        const item = state.perfectPairQueue[state.perfectPairRound];
+        if (!item) {
+          finishPerfectPairRound();
+          return;
+        }
+        els.perfectPairCount.textContent = `${state.perfectPairRound} / ${state.perfectPairQueue.length} solved`;
+        els.perfectPairFeedback.textContent = "Select the correct pair.";
+        els.perfectPairFeedback.className = "feedback";
+        
+        els.perfectPairWord.textContent = `'${item.base}'`;
+        
+        const choices = generateDistractors(item);
+        const correct = `${item.past} / ${item.participle}`;
+        
+        els.perfectPairChoices.innerHTML = "";
+        choices.forEach(choice => {
+          const btn = document.createElement("button");
+          btn.textContent = choice;
+          btn.addEventListener("click", () => answerPerfectPair(choice, correct, btn, item));
+          els.perfectPairChoices.append(btn);
+        });
+      }
+
+      function answerPerfectPair(choice, correct, btnElement, item) {
+        document.querySelectorAll("#perfectPairChoices button").forEach(btn => btn.classList.add("disabled"));
+        
+        if (choice === correct) {
+          state.score += 15;
+          btnElement.classList.add("correct");
+          els.perfectPairFeedback.textContent = `Correct! ${item.base} becomes ${choice}.`;
+          els.perfectPairFeedback.className = "feedback good";
+        } else {
+          state.missed.add(item.base);
+          btnElement.classList.add("wrong");
+          
+          document.querySelectorAll("#perfectPairChoices button").forEach(b => {
+             if (b.textContent === correct) b.classList.add("correct");
+          });
+          
+          els.perfectPairFeedback.textContent = `Not quite. The correct pair is ${correct}.`;
+          els.perfectPairFeedback.className = "feedback bad";
+        }
+        
+        window.setTimeout(() => {
+          state.perfectPairRound++;
+          renderPerfectPair();
+          updateStats();
+        }, 1500);
+      }
+
+      function finishPerfectPairRound() {
+        els.perfectPairCount.textContent = `${state.perfectPairQueue.length} / ${state.perfectPairQueue.length} solved`;
+        els.toMissingLetters.disabled = false;
+        els.toMissingLetters.textContent = "Play Missing Letters";
+        els.perfectPairFeedback.textContent = "Perfect pair complete! Now test your spelling.";
+        els.perfectPairFeedback.className = "feedback good";
+      }
+
+      function continueAfterPerfectPair() {
+        startMissingLetters();
+      }
+
+      function startMissingLetters() {
+        const activeVerbs = getActiveVerbs();
+        state.missingLettersQueue = shuffle([...activeVerbs]);
+        state.missingLettersRound = 0;
+        els.toUse.disabled = true;
+        renderMissingLetters();
+        unlockTab("missingletters");
+        setScreen("missingletters");
+      }
+
+      function generateMissingWord(word) {
+        const letters = word.split('');
+        let hideCount = Math.max(1, Math.floor(letters.length / 2));
+        
+        let indices = Array.from({length: letters.length}, (_, i) => i);
+        indices = shuffle(indices).slice(0, hideCount);
+        
+        return letters.map((char, i) => indices.includes(i) ? '_' : char);
+      }
+
+      function renderMissingLetters() {
+        const item = state.missingLettersQueue[state.missingLettersRound];
+        if (!item) {
+          finishMissingLettersRound();
+          return;
+        }
+        els.missingLettersCount.textContent = `${state.missingLettersRound} / ${state.missingLettersQueue.length} solved`;
+        els.missingLettersFeedback.textContent = "Fill in the blanks.";
+        els.missingLettersFeedback.className = "feedback";
+        
+        els.missingLettersInput.value = "";
+        els.missingLettersInput.disabled = false;
+        els.missingLettersSubmit.disabled = false;
+        
+        els.missingPresentWord.textContent = `'${item.base}'`;
+
+        const displayChars = generateMissingWord(item.past);
+        els.missingWordDisplay.innerHTML = displayChars.map(c => `<span>${c}</span>`).join('');
+      }
+
+      function answerMissingLetters() {
+        const item = state.missingLettersQueue[state.missingLettersRound];
+        const guess = els.missingLettersInput.value.trim().toLowerCase();
+        
+        if (!guess) return;
+        
+        els.missingLettersInput.disabled = true;
+        els.missingLettersSubmit.disabled = true;
+        
+        if (guess === item.past.toLowerCase()) {
+          state.score += 15;
+          els.missingLettersFeedback.textContent = `Correct! ${item.base} becomes ${item.past}.`;
+          els.missingLettersFeedback.className = "feedback good";
+        } else {
+          state.missed.add(item.base);
+          els.missingLettersFeedback.textContent = `Not quite. The correct word is ${item.past}.`;
+          els.missingLettersFeedback.className = "feedback bad";
+        }
+        
+        window.setTimeout(() => {
+          state.missingLettersRound++;
+          renderMissingLetters();
+          updateStats();
+        }, 1500);
+      }
+
+      function finishMissingLettersRound() {
+        els.missingLettersCount.textContent = `${state.missingLettersQueue.length} / ${state.missingLettersQueue.length} solved`;
+        els.toUse.disabled = false;
+        els.toUse.textContent = "Use the Verbs";
+        els.missingLettersFeedback.textContent = "Missing letters complete! Now use the verbs.";
+        els.missingLettersFeedback.className = "feedback good";
+      }
+
+      function continueAfterMissingLetters() {
+        startUseIt();
+      }
+
+      function startUseIt() {
+        state.questions = shuffle(getActiveVerbs()).map((verb) => {
+          const wrongChoices = shuffle(
+            verbs.filter((item) => item.base !== verb.base),
+          )
+            .slice(0, 2)
+            .map((item) => item.past);
+          return { verb, choices: shuffle([verb.past, ...wrongChoices]) };
+        });
+        state.questionIndex = 0;
+        state.answeredCurrent = false;
+        els.nextQuestion.disabled = true;
+        renderQuestion();
+        unlockTab("use");
+        setScreen("use");
+      }
+
+      function renderQuestion() {
+        const question = state.questions[state.questionIndex];
+        els.questionCount.textContent = `Question ${state.questionIndex + 1} of ${state.questions.length}`;
+        els.sentencePicture.innerHTML = verbPicture(question.verb, "large", true);
+        els.sentenceText.innerHTML = question.verb.sentence.replace(
+          "___",
+          `<span class="blank">?</span>`,
+        );
+        els.answerChoices.innerHTML = "";
+        els.sentenceFeedback.textContent =
+          "Read the sentence, then choose a word.";
+        els.sentenceFeedback.className = "feedback";
+        els.nextQuestion.disabled = true;
+        state.answeredCurrent = false;
+
+        question.choices.forEach((choice) => {
+          const button = document.createElement("button");
+          button.className = "choice-card";
+          button.textContent = choice;
+          button.dataset.choice = choice;
+          button.dataset.correct = String(choice === question.verb.past);
+          button.addEventListener("click", () =>
+            answerQuestion(choice, button),
+          );
+          els.answerChoices.append(button);
+        });
+      }
+
+      function answerQuestion(choice, button) {
+        if (state.answeredCurrent) {
+          return;
+        }
+        const question = state.questions[state.questionIndex];
+        const correct = choice === question.verb.past;
+        state.answeredCurrent = true;
+        document
+          .querySelectorAll("#answerChoices .choice-card")
+          .forEach((item) => {
+            item.disabled = true;
+            if (item.textContent === question.verb.past) {
+              item.classList.add("correct");
+            }
+          });
+        if (correct) {
+          state.score += 15;
+          els.sentenceFeedback.textContent = `Yes. ${question.verb.base} becomes ${question.verb.past}.`;
+          els.sentenceFeedback.className = "feedback good";
+        } else {
+          state.missed.add(question.verb.base);
+          button.classList.add("wrong");
+          els.sentenceFeedback.textContent = `Close. The sentence needs ${question.verb.past}.`;
+          els.sentenceFeedback.className = "feedback bad";
+        }
+        els.nextQuestion.disabled = false;
+        els.nextQuestion.textContent =
+          state.questionIndex === state.questions.length - 1
+            ? "Review"
+            : "Next";
+        updateStats();
+      }
+
+      function nextQuestion() {
+        if (state.questionIndex < state.questions.length - 1) {
+          state.questionIndex += 1;
+          renderQuestion();
+        } else {
+          showReview();
+        }
+      }
+
+      function showReview() {
+        const missedVerbs = verbs.filter((verb) => state.missed.has(verb.base));
+        els.missedList.innerHTML = "";
+        if (missedVerbs.length === 0) {
+          els.missedList.innerHTML = `<p class="feedback good">No tricky verbs this round. Every answer landed.</p>`;
+        } else {
+          missedVerbs.forEach((verb) => {
+            const card = document.createElement("div");
+            card.className = "review-card";
+            card.innerHTML = `<div><strong>${verb.base} - ${verb.past} - ${verb.participle}</strong><br><span>${verb.hint}</span></div><span class="badge">practice</span>`;
+            els.missedList.append(card);
+          });
+        }
+
+        els.roundResult.textContent = `${missedVerbs.length} tricky`;
+        els.replayMissed.disabled = missedVerbs.length === 0;
+        els.nextLevel.disabled = state.level === 3;
+        els.nextLevel.textContent =
+          state.level === 3 ? "All Levels Done" : "Next Level";
+        els.reviewMessage.textContent =
+          state.level === 3
+            ? "You practiced all 25 verbs. Replay tricky verbs or restart the adventure."
+            : `Next level adds more verbs: ${levelSizes[state.level]} total.`;
+        setScreen("review");
+        updateStats();
+      }
+
+      function replayMissed() {
+        const missedVerbs = verbs.filter((verb) => state.missed.has(verb.base));
+        if (!missedVerbs.length) {
+          return;
+        }
+        state.replayMode = true;
+        state.replayVerbs = missedVerbs;
+        state.learned = new Set(missedVerbs.map((verb) => verb.base));
+        state.activeIndex = 0;
+        state.missed = new Set();
+        renderLearn();
+        startMatch();
+      }
+
+      function goNextLevel() {
+        if (state.level < 3) {
+          state.level += 1;
+        }
+        state.replayMode = false;
+        state.replayVerbs = [];
+        state.learned = new Set();
+        state.missed = new Set();
+        state.activeIndex = 0;
+        lockTabs();
+        renderLearn();
+        setScreen("learn");
+      }
+
+      function restartGame() {
+        state.level = 1;
+        state.score = 0;
+        state.replayMode = false;
+        state.replayVerbs = [];
+        state.learned = new Set();
+        state.missed = new Set();
+        state.activeIndex = 0;
+        lockTabs();
+        renderLearn();
+        setScreen("learn");
+      }
+
+      function unlockTab(name) {
+        const button = document.querySelector(`[data-screen-button="${name}"]`);
+        if (button) {
+          button.disabled = false;
+        }
+      }
+
+      function lockTabs() {
+        // Tabs are unlocked to allow jumping directly to exercises
+      }
+
+      document.getElementById("prevVerb").addEventListener("click", () => {
+        state.activeIndex = Math.max(0, state.activeIndex - 1);
+        renderLearn();
+      });
+      document
+        .getElementById("nextVerb")
+        .addEventListener("click", () => markCurrentLearned(true));
+      document
+        .getElementById("markLearned")
+        .addEventListener("click", () => markCurrentLearned(false));
+      els.startPractice.addEventListener("click", startMatch);
+      els.toMemory.addEventListener("click", startMemory);
+      els.toDetective.addEventListener("click", continueAfterMemory);
+      els.toPerfectPair.addEventListener("click", continueAfterDetective);
+      els.toMissingLetters.addEventListener("click", continueAfterPerfectPair);
+      els.toUse.addEventListener("click", continueAfterMissingLetters);
+      els.nextQuestion.addEventListener("click", nextQuestion);
+
+      els.missingLettersSubmit.addEventListener("click", answerMissingLetters);
+      els.missingLettersInput.addEventListener("keyup", (e) => {
+        if (e.key === "Enter" && !els.missingLettersSubmit.disabled) {
+          answerMissingLetters();
+        }
+      });
+      
+      document.querySelectorAll(".choice-btn").forEach(btn => {
+        btn.addEventListener("click", () => answerDetective(btn.dataset.form, btn));
+      });
+      els.replayMissed.addEventListener("click", replayMissed);
+      els.nextLevel.addEventListener("click", goNextLevel);
+      document
+        .getElementById("restartGame")
+        .addEventListener("click", restartGame);
+
+      document.querySelectorAll("[data-screen-button]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = button.dataset.screenButton;
+          if (state.screen === target) return;
+          if (target === "learn") setScreen("learn");
+          else if (target === "match") startMatch();
+          else if (target === "memory") startMemory();
+          else if (target === "detective") startDetective();
+          else if (target === "perfectpair") startPerfectPair();
+          else if (target === "missingletters") startMissingLetters();
+          else if (target === "use") startUseIt();
+        });
+      });
+
+      renderLearn();
+    </script>
+  </body>
+</html>
